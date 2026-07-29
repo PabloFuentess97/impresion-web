@@ -2,6 +2,7 @@ import { proyectoRepository } from "@/repositories/proyecto.repository";
 import { impresionRepository } from "@/repositories/impresion.repository";
 import { incidenciaRepository } from "@/repositories/incidencia.repository";
 import { tintaService, type ConsumoTinta } from "@/services/tinta.service";
+import { papelService, type ConsumoPapel } from "@/services/papel.service";
 import { calcularRango } from "@/lib/dates";
 import type { PeriodoReporte } from "@/lib/constants";
 import type { EstadoIncidencia } from "@prisma/client";
@@ -39,6 +40,7 @@ export interface ReporteCompleto {
   impresiones: ReporteImpresion[];
   incidencias: ReporteIncidencia[];
   tintas: ConsumoTinta[];
+  papel: ConsumoPapel[];
   resumen: {
     totalProyectos: number;
     totalImpresiones: number;
@@ -46,6 +48,7 @@ export interface ReporteCompleto {
     tiempoTotal: number;
     totalIncidencias: number;
     tintaGastadaTotal: number;
+    papelGastadoTotal: number;
   };
 }
 
@@ -60,12 +63,13 @@ export const reporteService = {
   ): Promise<ReporteCompleto> {
     const { desde, hasta } = calcularRango(periodo, desdeStr, hastaStr);
 
-    const [proyectosRaw, impresionesRaw, incidenciasRaw, tintas] =
+    const [proyectosRaw, impresionesRaw, incidenciasRaw, tintas, papel] =
       await Promise.all([
         proyectoRepository.conActividadEnRango(desde, hasta),
         impresionRepository.listarEnRango(desde, hasta),
         incidenciaRepository.listarEnRango(desde, hasta),
         tintaService.consumoEnRango(desde, hasta),
+        papelService.consumoEnRango(desde, hasta),
       ]);
 
     const proyectos: ReporteProyecto[] = proyectosRaw.map((p) => ({
@@ -101,6 +105,7 @@ export const reporteService = {
       impresiones,
       incidencias,
       tintas,
+      papel,
       resumen: {
         totalProyectos: proyectos.length,
         totalImpresiones: impresiones.length,
@@ -109,6 +114,7 @@ export const reporteService = {
         totalIncidencias: incidencias.length,
         tintaGastadaTotal:
           Math.round(tintas.reduce((a, t) => a + t.gastado, 0) * 10) / 10,
+        papelGastadoTotal: papel.reduce((a, p) => a + p.gastado, 0),
       },
     };
   },

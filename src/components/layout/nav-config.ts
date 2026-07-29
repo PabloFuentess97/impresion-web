@@ -20,7 +20,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icono: LayoutDashboard },
   { label: "Proyectos", href: "/proyectos", icono: FolderKanban },
   { label: "Salidas", href: "/salidas", icono: Truck },
-  { label: "Tintas", href: "/tintas", icono: Droplets },
+  { label: "Tintas y papel", href: "/tintas", icono: Droplets },
   { label: "Incidencias", href: "/incidencias", icono: AlertTriangle },
   { label: "Reportes", href: "/reportes", icono: FileBarChart },
   { label: "Configuración", href: "/configuracion", icono: Settings },

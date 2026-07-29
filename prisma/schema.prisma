@@ -146,6 +146,38 @@ model LecturaTinta {
   @@map("lecturas_tinta")
 }
 
+/// Papel: registro del número de rollos disponibles.
+model Papel {
+  id        String   @id @default(cuid())
+  nombre    String   @default("Papel")
+  /// Número de rollos actuales.
+  rollos    Int      @default(0)
+  orden     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lecturas  LecturaPapel[]
+
+  @@index([orden])
+  @@map("papel")
+}
+
+/// Lectura histórica del número de rollos de papel en una fecha concreta.
+model LecturaPapel {
+  id        String   @id @default(cuid())
+  rollos    Int
+  /// Solo fecha (sin hora).
+  fecha     DateTime @default(now()) @db.Date
+  createdAt DateTime @default(now())
+
+  papelId   String
+  papel     Papel    @relation(fields: [papelId], references: [id], onDelete: Cascade)
+
+  @@index([papelId])
+  @@index([fecha])
+  @@map("lecturas_papel")
+}
+
 /// Configuración global de la aplicación (registro único).
 model Configuracion {
   id            String   @id @default(cuid())

@@ -17,8 +17,9 @@ claro/oscuro y totalmente en español.
 - 📁 **Proyectos** con CRUD completo, búsqueda, ordenación y paginación.
 - 🖨️ **Impresiones** por proyecto (nombre, cantidad, tiempo, fecha automática).
 - 🚚 **Salidas** de material: unidades de un proyecto enviadas a un destino.
-- 🎨 **Tintas** configurables (4, 6 o 9) con control de nivel (%) e histórico;
-  los reportes comparan el nivel anterior con el actual y muestran el consumo.
+- 🎨 **Tintas y papel**: tintas configurables (4, 6 o 9) con control de nivel
+  (%) y stock de rollos de papel; con histórico. Los reportes comparan el
+  valor anterior con el actual y muestran el consumo de tinta y de papel.
 - ⚠️ **Incidencias** con editor de texto enriquecido (Tiptap) y estados.
 - 📈 **Reportes** diario/semanal/mensual/personalizado con exportación a
   **PDF** y **Excel**, e **impresión** directa.

@@ -125,6 +125,26 @@ export async function exportarReporteExcel(
     );
   }
 
+  // --- Hoja: Papel ---
+  if (reporte.papel.length > 0) {
+    const papel = wb.addWorksheet("Papel");
+    papel.columns = [
+      { header: "Papel", key: "nombre", width: 24 },
+      { header: "Rollos anteriores", key: "anterior", width: 18 },
+      { header: "Rollos actuales", key: "actual", width: 18 },
+      { header: "Rollos gastados", key: "gastado", width: 18 },
+    ];
+    estilizarCabecera(papel.getRow(1));
+    reporte.papel.forEach((p) =>
+      papel.addRow({
+        nombre: p.nombre,
+        anterior: p.rollosAnterior,
+        actual: p.rollosActual,
+        gastado: p.gastado,
+      }),
+    );
+  }
+
   // Descargar
   const buffer = await wb.xlsx.writeBuffer();
   const blob = new Blob([buffer], {

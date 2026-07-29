@@ -6,6 +6,7 @@ import {
   Clock,
   AlertTriangle,
   Droplets,
+  Scroll,
 } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
@@ -116,7 +117,7 @@ export default async function ReportesPage({
       </div>
 
       {/* Resumen */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-7">
         <ResumenItem
           icono={<FolderKanban />}
           label="Proyectos"
@@ -146,6 +147,11 @@ export default async function ReportesPage({
           icono={<Droplets />}
           label="Tinta gastada"
           valor={`${reporte.resumen.tintaGastadaTotal}%`}
+        />
+        <ResumenItem
+          icono={<Scroll />}
+          label="Papel gastado"
+          valor={`${reporte.resumen.papelGastadoTotal} rollos`}
         />
       </div>
 
@@ -209,6 +215,55 @@ export default async function ReportesPage({
                           {Math.round(t.nivelActual)}%
                         </span>
                       </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+        </section>
+      )}
+
+      {/* Consumo de papel */}
+      {reporte.papel.length > 0 && (
+        <section className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground">
+            Consumo de papel
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            Comparativa de rollos al inicio del período con los actuales.
+          </p>
+          <Card className="overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Papel</TableHead>
+                  <TableHead className="text-center">Rollos anteriores</TableHead>
+                  <TableHead className="text-center">Rollos actuales</TableHead>
+                  <TableHead className="text-center">Rollos gastados</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {reporte.papel.map((p) => (
+                  <TableRow key={p.id}>
+                    <TableCell>
+                      <span className="flex items-center gap-2 font-medium">
+                        <Scroll className="h-4 w-4 text-primary" />
+                        {p.nombre}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center text-muted-foreground">
+                      {p.rollosAnterior}
+                    </TableCell>
+                    <TableCell className="text-center text-muted-foreground">
+                      {p.rollosActual}
+                    </TableCell>
+                    <TableCell className="text-center font-semibold">
+                      {p.gastado > 0 ? (
+                        <span className="text-destructive">-{p.gastado}</span>
+                      ) : (
+                        <span className="text-muted-foreground">0</span>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

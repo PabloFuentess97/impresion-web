@@ -139,6 +139,28 @@ export function exportarReportePDF(
     });
   }
 
+  // Tabla: Consumo de papel
+  if (reporte.papel.length > 0) {
+    // @ts-expect-error lastAutoTable lo añade el plugin
+    cursorY = (doc.lastAutoTable?.finalY ?? cursorY) + 30;
+    doc.setFontSize(11);
+    doc.setTextColor(40, 40, 50);
+    doc.text("Consumo de papel", margen, cursorY - 8);
+    autoTable(doc, {
+      startY: cursorY,
+      head: [["Papel", "Rollos anteriores", "Rollos actuales", "Rollos gastados"]],
+      body: reporte.papel.map((p) => [
+        p.nombre,
+        String(p.rollosAnterior),
+        String(p.rollosActual),
+        String(p.gastado),
+      ]),
+      headStyles: { fillColor: [79, 70, 229], textColor: 255, fontSize: 9 },
+      bodyStyles: { fontSize: 9 },
+      margin: { left: margen, right: margen },
+    });
+  }
+
   // Pie de página con numeración
   const totalPaginas = doc.getNumberOfPages();
   for (let i = 1; i <= totalPaginas; i++) {
