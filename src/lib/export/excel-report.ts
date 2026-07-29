@@ -105,6 +105,26 @@ export async function exportarReporteExcel(
     }),
   );
 
+  // --- Hoja: Tintas ---
+  if (reporte.tintas.length > 0) {
+    const tintas = wb.addWorksheet("Tintas");
+    tintas.columns = [
+      { header: "Tinta", key: "nombre", width: 24 },
+      { header: "% anterior", key: "anterior", width: 14 },
+      { header: "% actual", key: "actual", width: 14 },
+      { header: "% gastado", key: "gastado", width: 14 },
+    ];
+    estilizarCabecera(tintas.getRow(1));
+    reporte.tintas.forEach((t) =>
+      tintas.addRow({
+        nombre: t.nombre,
+        anterior: Math.round(t.nivelAnterior),
+        actual: Math.round(t.nivelActual),
+        gastado: t.gastado,
+      }),
+    );
+  }
+
   // Descargar
   const buffer = await wb.xlsx.writeBuffer();
   const blob = new Blob([buffer], {

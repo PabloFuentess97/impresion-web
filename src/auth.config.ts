@@ -27,6 +27,8 @@ export const authConfig = {
       const rutasPrivadas = [
         "/dashboard",
         "/proyectos",
+        "/salidas",
+        "/tintas",
         "/incidencias",
         "/reportes",
         "/configuracion",

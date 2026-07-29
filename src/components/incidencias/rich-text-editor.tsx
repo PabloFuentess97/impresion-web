@@ -191,7 +191,7 @@ function Toolbar({ editor }: { editor: Editor }) {
 export function RichTextEditor({
   valor,
   onChange,
-  placeholder = "Describe la incidencia con detalle...",
+  placeholder = "",
 }: RichTextEditorProps) {
   const editor = useEditor({
     immediatelyRender: false,

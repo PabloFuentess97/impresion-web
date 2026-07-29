@@ -114,11 +114,7 @@ export function IncidenciaFormDialog({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="titulo">Título</Label>
-              <Input
-                id="titulo"
-                placeholder="Ej. Adhesión insuficiente"
-                {...register("titulo")}
-              />
+              <Input id="titulo" {...register("titulo")} />
               {errors.titulo && (
                 <p className="text-xs text-destructive">
                   {errors.titulo.message}

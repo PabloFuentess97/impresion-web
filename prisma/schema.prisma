@@ -109,6 +109,43 @@ model Incidencia {
   @@map("incidencias")
 }
 
+/// Tinta configurada en el sistema (p. ej. Cian, Magenta...).
+/// El número de tintas activas (4, 6 o 9) equivale al número de registros.
+model Tinta {
+  id         String   @id @default(cuid())
+  nombre     String
+  /// Color hexadecimal para mostrar la muestra visual.
+  color      String   @default("#6366F1")
+  /// Orden de visualización.
+  orden      Int      @default(0)
+  /// Porcentaje actual de tinta (0-100).
+  porcentaje Float    @default(100)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  lecturas   LecturaTinta[]
+
+  @@index([orden])
+  @@map("tintas")
+}
+
+/// Lectura histórica del porcentaje de una tinta en una fecha concreta.
+/// Permite comparar el nivel anterior con el actual en los reportes.
+model LecturaTinta {
+  id         String   @id @default(cuid())
+  porcentaje Float
+  /// Solo fecha (sin hora).
+  fecha      DateTime @default(now()) @db.Date
+  createdAt  DateTime @default(now())
+
+  tintaId    String
+  tinta      Tinta    @relation(fields: [tintaId], references: [id], onDelete: Cascade)
+
+  @@index([tintaId])
+  @@index([fecha])
+  @@map("lecturas_tinta")
+}
+
 /// Configuración global de la aplicación (registro único).
 model Configuracion {
   id            String   @id @default(cuid())

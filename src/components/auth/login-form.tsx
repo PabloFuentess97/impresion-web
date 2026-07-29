@@ -64,7 +64,7 @@ export function LoginForm() {
             id="email"
             type="email"
             autoComplete="email"
-            placeholder="admin@impresionweb.com"
+            placeholder="correo@ejemplo.com"
             className="pl-9"
             {...register("email")}
           />

@@ -1,6 +1,7 @@
 import { proyectoRepository } from "@/repositories/proyecto.repository";
 import { impresionRepository } from "@/repositories/impresion.repository";
 import { incidenciaRepository } from "@/repositories/incidencia.repository";
+import { tintaService, type ConsumoTinta } from "@/services/tinta.service";
 import { calcularRango } from "@/lib/dates";
 import type { PeriodoReporte } from "@/lib/constants";
 import type { EstadoIncidencia } from "@prisma/client";
@@ -37,12 +38,14 @@ export interface ReporteCompleto {
   proyectos: ReporteProyecto[];
   impresiones: ReporteImpresion[];
   incidencias: ReporteIncidencia[];
+  tintas: ConsumoTinta[];
   resumen: {
     totalProyectos: number;
     totalImpresiones: number;
     cantidadTotal: number;
     tiempoTotal: number;
     totalIncidencias: number;
+    tintaGastadaTotal: number;
   };
 }
 
@@ -57,11 +60,13 @@ export const reporteService = {
   ): Promise<ReporteCompleto> {
     const { desde, hasta } = calcularRango(periodo, desdeStr, hastaStr);
 
-    const [proyectosRaw, impresionesRaw, incidenciasRaw] = await Promise.all([
-      proyectoRepository.conActividadEnRango(desde, hasta),
-      impresionRepository.listarEnRango(desde, hasta),
-      incidenciaRepository.listarEnRango(desde, hasta),
-    ]);
+    const [proyectosRaw, impresionesRaw, incidenciasRaw, tintas] =
+      await Promise.all([
+        proyectoRepository.conActividadEnRango(desde, hasta),
+        impresionRepository.listarEnRango(desde, hasta),
+        incidenciaRepository.listarEnRango(desde, hasta),
+        tintaService.consumoEnRango(desde, hasta),
+      ]);
 
     const proyectos: ReporteProyecto[] = proyectosRaw.map((p) => ({
       id: p.id,
@@ -95,12 +100,15 @@ export const reporteService = {
       proyectos,
       impresiones,
       incidencias,
+      tintas,
       resumen: {
         totalProyectos: proyectos.length,
         totalImpresiones: impresiones.length,
         cantidadTotal: impresiones.reduce((a, i) => a + i.cantidad, 0),
         tiempoTotal: impresiones.reduce((a, i) => a + i.tiempo, 0),
         totalIncidencias: incidencias.length,
+        tintaGastadaTotal:
+          Math.round(tintas.reduce((a, t) => a + t.gastado, 0) * 10) / 10,
       },
     };
   },

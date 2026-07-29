@@ -101,11 +101,7 @@ export function ProyectoFormDialog({
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="titulo">Título</Label>
-            <Input
-              id="titulo"
-              placeholder="Ej. Prototipo carcasa dron"
-              {...register("titulo")}
-            />
+            <Input id="titulo" {...register("titulo")} />
             {errors.titulo && (
               <p className="text-xs text-destructive">{errors.titulo.message}</p>
             )}
@@ -113,12 +109,7 @@ export function ProyectoFormDialog({
 
           <div className="space-y-2">
             <Label htmlFor="descripcion">Descripción</Label>
-            <Textarea
-              id="descripcion"
-              rows={4}
-              placeholder="Describe brevemente el proyecto (opcional)."
-              {...register("descripcion")}
-            />
+            <Textarea id="descripcion" rows={4} {...register("descripcion")} />
             {errors.descripcion && (
               <p className="text-xs text-destructive">
                 {errors.descripcion.message}

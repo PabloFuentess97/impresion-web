@@ -124,11 +124,7 @@ export function ImpresionFormDialog({
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="nombre">Nombre de la impresión</Label>
-            <Input
-              id="nombre"
-              placeholder="Ej. Carcasa superior"
-              {...register("nombre")}
-            />
+            <Input id="nombre" {...register("nombre")} />
             {errors.nombre && (
               <p className="text-xs text-destructive">{errors.nombre.message}</p>
             )}

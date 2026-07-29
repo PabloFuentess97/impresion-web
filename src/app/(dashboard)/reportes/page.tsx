@@ -5,6 +5,7 @@ import {
   Package,
   Clock,
   AlertTriangle,
+  Droplets,
 } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
@@ -115,7 +116,7 @@ export default async function ReportesPage({
       </div>
 
       {/* Resumen */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
         <ResumenItem
           icono={<FolderKanban />}
           label="Proyectos"
@@ -141,7 +142,81 @@ export default async function ReportesPage({
           label="Incidencias"
           valor={reporte.resumen.totalIncidencias}
         />
+        <ResumenItem
+          icono={<Droplets />}
+          label="Tinta gastada"
+          valor={`${reporte.resumen.tintaGastadaTotal}%`}
+        />
       </div>
+
+      {/* Consumo de tintas */}
+      {reporte.tintas.length > 0 && (
+        <section className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground">
+            Consumo de tintas
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            Comparativa del nivel anterior al período con el nivel actual.
+          </p>
+          <Card className="overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Tinta</TableHead>
+                  <TableHead className="text-center">% anterior</TableHead>
+                  <TableHead className="text-center">% actual</TableHead>
+                  <TableHead className="text-center">% gastado</TableHead>
+                  <TableHead>Nivel actual</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {reporte.tintas.map((t) => (
+                  <TableRow key={t.id}>
+                    <TableCell>
+                      <span className="flex items-center gap-2 font-medium">
+                        <span
+                          className="h-4 w-4 rounded border border-border"
+                          style={{ backgroundColor: t.color }}
+                        />
+                        {t.nombre}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center text-muted-foreground">
+                      {Math.round(t.nivelAnterior)}%
+                    </TableCell>
+                    <TableCell className="text-center text-muted-foreground">
+                      {Math.round(t.nivelActual)}%
+                    </TableCell>
+                    <TableCell className="text-center font-semibold">
+                      {t.gastado > 0 ? (
+                        <span className="text-destructive">-{t.gastado}%</span>
+                      ) : (
+                        <span className="text-muted-foreground">0%</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="w-[160px]">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${Math.round(t.nivelActual)}%`,
+                              backgroundColor: t.color,
+                            }}
+                          />
+                        </div>
+                        <span className="w-9 text-right text-xs text-muted-foreground">
+                          {Math.round(t.nivelActual)}%
+                        </span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+        </section>
+      )}
 
       {sinDatos ? (
         <EmptyState

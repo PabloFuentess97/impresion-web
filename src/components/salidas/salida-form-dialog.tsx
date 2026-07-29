@@ -172,11 +172,7 @@ export function SalidaFormDialog({
 
             <div className="space-y-2">
               <Label htmlFor="destino">Destino</Label>
-              <Input
-                id="destino"
-                placeholder="Ej. Almacén central"
-                {...register("destino")}
-              />
+              <Input id="destino" {...register("destino")} />
               {errors.destino && (
                 <p className="text-xs text-destructive">
                   {errors.destino.message}
@@ -187,12 +183,7 @@ export function SalidaFormDialog({
 
           <div className="space-y-2">
             <Label htmlFor="nota">Nota (opcional)</Label>
-            <Textarea
-              id="nota"
-              rows={2}
-              placeholder="Información adicional sobre la salida."
-              {...register("nota")}
-            />
+            <Textarea id="nota" rows={2} {...register("nota")} />
             {errors.nota && (
               <p className="text-xs text-destructive">{errors.nota.message}</p>
             )}

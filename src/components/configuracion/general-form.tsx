@@ -90,11 +90,7 @@ export function GeneralForm({ configuracion }: GeneralFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="logoUrl">URL del logo (opcional)</Label>
-            <Input
-              id="logoUrl"
-              placeholder="https://..."
-              {...register("logoUrl")}
-            />
+            <Input id="logoUrl" {...register("logoUrl")} />
             {errors.logoUrl && (
               <p className="text-xs text-destructive">{errors.logoUrl.message}</p>
             )}

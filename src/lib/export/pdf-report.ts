@@ -116,6 +116,29 @@ export function exportarReportePDF(
     margin: { left: margen, right: margen },
   });
 
+  // @ts-expect-error lastAutoTable lo añade el plugin
+  cursorY = (doc.lastAutoTable?.finalY ?? cursorY) + 30;
+
+  // Tabla: Consumo de tintas
+  if (reporte.tintas.length > 0) {
+    doc.setFontSize(11);
+    doc.setTextColor(40, 40, 50);
+    doc.text("Consumo de tintas", margen, cursorY - 8);
+    autoTable(doc, {
+      startY: cursorY,
+      head: [["Tinta", "% anterior", "% actual", "% gastado"]],
+      body: reporte.tintas.map((t) => [
+        t.nombre,
+        `${Math.round(t.nivelAnterior)}%`,
+        `${Math.round(t.nivelActual)}%`,
+        `${t.gastado}%`,
+      ]),
+      headStyles: { fillColor: [79, 70, 229], textColor: 255, fontSize: 9 },
+      bodyStyles: { fontSize: 9 },
+      margin: { left: margen, right: margen },
+    });
+  }
+
   // Pie de página con numeración
   const totalPaginas = doc.getNumberOfPages();
   for (let i = 1; i <= totalPaginas; i++) {
