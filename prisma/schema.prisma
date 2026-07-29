@@ -1,0 +1,121 @@
+// ==============================================================
+//  ImpresiónWeb — Esquema de base de datos (Prisma + PostgreSQL)
+// ==============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Estados posibles de una incidencia.
+enum EstadoIncidencia {
+  ABIERTA
+  EN_PROCESO
+  RESUELTA
+}
+
+/// Rol del usuario dentro del sistema.
+enum RolUsuario {
+  ADMIN
+}
+
+/// Usuario administrador. No existe registro público.
+model Usuario {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  password  String // Hash bcrypt
+  nombre    String
+  rol       RolUsuario @default(ADMIN)
+  activo    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("usuarios")
+}
+
+/// Proyecto de impresión. Agrupa muchas impresiones y salidas.
+model Proyecto {
+  id          String   @id @default(cuid())
+  titulo      String
+  descripcion String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  impresiones Impresion[]
+  salidas     Salida[]
+
+  @@index([createdAt])
+  @@map("proyectos")
+}
+
+/// Impresión concreta perteneciente a un proyecto.
+model Impresion {
+  id         String   @id @default(cuid())
+  nombre     String
+  cantidad   Int      @default(1)
+  /// Tiempo empleado en MINUTOS.
+  tiempo     Int      @default(0)
+  /// Solo fecha (sin hora). Se registra automáticamente al crear.
+  fecha      DateTime @default(now()) @db.Date
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  proyectoId String
+  proyecto   Proyecto @relation(fields: [proyectoId], references: [id], onDelete: Cascade)
+
+  @@index([proyectoId])
+  @@index([fecha])
+  @@map("impresiones")
+}
+
+/// Salida de material: unidades/etiquetas de un proyecto enviadas a un destino.
+model Salida {
+  id         String   @id @default(cuid())
+  /// Cantidad de unidades / etiquetas que salen.
+  cantidad   Int      @default(1)
+  /// Destino al que se envían (texto libre, sin clientes).
+  destino    String
+  /// Nota opcional.
+  nota       String?
+  /// Solo fecha (sin hora). Se registra automáticamente al crear.
+  fecha      DateTime @default(now()) @db.Date
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  proyectoId String
+  proyecto   Proyecto @relation(fields: [proyectoId], references: [id], onDelete: Cascade)
+
+  @@index([proyectoId])
+  @@index([fecha])
+  @@map("salidas")
+}
+
+/// Incidencia independiente con descripción enriquecida (HTML de Tiptap).
+model Incidencia {
+  id          String           @id @default(cuid())
+  titulo      String
+  /// HTML enriquecido generado por el editor WYSIWYG.
+  descripcion String
+  estado      EstadoIncidencia @default(ABIERTA)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([estado])
+  @@index([createdAt])
+  @@map("incidencias")
+}
+
+/// Configuración global de la aplicación (registro único).
+model Configuracion {
+  id            String   @id @default(cuid())
+  nombreEmpresa String   @default("ImpresiónWeb")
+  logoUrl       String?
+  tema          String   @default("system") // "light" | "dark" | "system"
+  updatedAt     DateTime @updatedAt
+
+  @@map("configuracion")
+}

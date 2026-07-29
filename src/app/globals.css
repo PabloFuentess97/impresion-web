@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 24% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 24% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 24% 12%;
+
+    --primary: 245 58% 51%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 16% 96%;
+    --secondary-foreground: 222 24% 20%;
+
+    --muted: 220 16% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    --accent: 245 58% 96%;
+    --accent-foreground: 245 58% 40%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 60% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 220 16% 90%;
+    --input: 220 16% 90%;
+    --ring: 245 58% 51%;
+
+    --radius: 0.65rem;
+  }
+
+  .dark {
+    --background: 224 24% 8%;
+    --foreground: 220 14% 92%;
+
+    --card: 224 22% 11%;
+    --card-foreground: 220 14% 92%;
+
+    --popover: 224 22% 11%;
+    --popover-foreground: 220 14% 92%;
+
+    --primary: 245 70% 66%;
+    --primary-foreground: 224 24% 8%;
+
+    --secondary: 223 18% 16%;
+    --secondary-foreground: 220 14% 90%;
+
+    --muted: 223 18% 16%;
+    --muted-foreground: 220 10% 60%;
+
+    --accent: 245 40% 20%;
+    --accent-foreground: 245 70% 82%;
+
+    --destructive: 0 62% 52%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 55% 46%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 90% 55%;
+    --warning-foreground: 224 24% 8%;
+
+    --border: 223 16% 20%;
+    --input: 223 16% 22%;
+    --ring: 245 70% 66%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Barra de desplazamiento sutil */
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: 9999px;
+  }
+}
+
+/* Estilos del contenido enriquecido (Tiptap) */
+.tiptap {
+  min-height: 220px;
+  outline: none;
+}
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+  height: 0;
+}
+.prosa h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0.75rem 0 0.5rem;
+}
+.prosa h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0.75rem 0 0.5rem;
+}
+.prosa h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+.prosa p {
+  margin: 0.5rem 0;
+  line-height: 1.7;
+}
+.prosa ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+.prosa ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+.prosa a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+}
+.prosa blockquote {
+  border-left: 3px solid hsl(var(--border));
+  padding-left: 1rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0.5rem 0;
+}
+.prosa img {
+  max-width: 100%;
+  border-radius: var(--radius);
+  margin: 0.5rem 0;
+}
+.prosa code {
+  background: hsl(var(--muted));
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.3rem;
+  font-size: 0.9em;
+}
+
+/* Estilos de impresión para reportes */
+@media print {
+  .no-imprimir {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+  .solo-imprimir {
+    display: block !important;
+  }
+}
