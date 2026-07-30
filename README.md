@@ -15,8 +15,12 @@ claro/oscuro y totalmente en español.
 - 🔐 **Autenticación de administrador** (sin registro público) con Auth.js + bcrypt.
 - 📊 **Dashboard** con tarjetas estadísticas y gráficos de actividad.
 - 📁 **Proyectos** con CRUD completo, búsqueda, ordenación y paginación.
+  Incluyen **ruta de impresión** (texto plano) y **bloqueo** con resaltado
+  elegante en el listado (desbloquear requiere confirmación).
 - 🖨️ **Impresiones** por proyecto (nombre, cantidad, tiempo, fecha automática).
 - 🚚 **Salidas** de material: unidades de un proyecto enviadas a un destino.
+- 📦 **Inventario** de artículos con nombre y cantidad (búsqueda, orden y
+  paginación).
 - 🎨 **Tintas y papel**: tintas configurables (4, 6 o 9) con control de nivel
   (%) y stock de rollos de papel; con histórico. Los reportes comparan el
   valor anterior con el actual y muestran el consumo de tinta y de papel.

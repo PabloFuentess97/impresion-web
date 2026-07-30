@@ -2,6 +2,7 @@ import type {
   Proyecto,
   Impresion,
   Incidencia,
+  Inventario,
   EstadoIncidencia,
 } from "@prisma/client";
 
@@ -67,4 +68,4 @@ export interface Paginado<T> {
   tamano: number;
 }
 
-export type { Proyecto, Impresion, Incidencia, EstadoIncidencia };
+export type { Proyecto, Impresion, Incidencia, Inventario, EstadoIncidencia };

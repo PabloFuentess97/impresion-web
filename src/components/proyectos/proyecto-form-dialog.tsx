@@ -29,7 +29,10 @@ import type { Proyecto } from "@/types";
 
 interface ProyectoFormDialogProps {
   trigger: React.ReactNode;
-  proyecto?: Pick<Proyecto, "id" | "titulo" | "descripcion">;
+  proyecto?: Pick<
+    Proyecto,
+    "id" | "titulo" | "descripcion" | "rutaImpresion"
+  >;
 }
 
 /** Diálogo con formulario para crear o editar un proyecto. */
@@ -52,6 +55,7 @@ export function ProyectoFormDialog({
     defaultValues: {
       titulo: proyecto?.titulo ?? "",
       descripcion: proyecto?.descripcion ?? "",
+      rutaImpresion: proyecto?.rutaImpresion ?? "",
     },
   });
 
@@ -60,6 +64,7 @@ export function ProyectoFormDialog({
       reset({
         titulo: proyecto?.titulo ?? "",
         descripcion: proyecto?.descripcion ?? "",
+        rutaImpresion: proyecto?.rutaImpresion ?? "",
       });
     }
   }, [abierto, proyecto, reset]);
@@ -113,6 +118,23 @@ export function ProyectoFormDialog({
             {errors.descripcion && (
               <p className="text-xs text-destructive">
                 {errors.descripcion.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="rutaImpresion">Ruta de impresión</Label>
+            <Input
+              id="rutaImpresion"
+              placeholder="Ej. \\servidor\impresiones\proyecto"
+              {...register("rutaImpresion")}
+            />
+            <p className="text-xs text-muted-foreground">
+              Solo texto: la ubicación del archivo. No se sube ningún archivo.
+            </p>
+            {errors.rutaImpresion && (
+              <p className="text-xs text-destructive">
+                {errors.rutaImpresion.message}
               </p>
             )}
           </div>

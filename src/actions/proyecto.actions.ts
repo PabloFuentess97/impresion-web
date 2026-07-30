@@ -68,6 +68,35 @@ export async function actualizarProyecto(
   }
 }
 
+/** Bloquea o desbloquea un proyecto. */
+export async function alternarBloqueoProyecto(
+  id: string,
+  bloqueado: boolean,
+): Promise<ActionResult> {
+  try {
+    await requireAuth();
+    const existente = await proyectoService.obtener(id);
+    if (!existente) {
+      return { success: false, message: "El proyecto no existe." };
+    }
+
+    await proyectoService.alternarBloqueo(id, bloqueado);
+    revalidatePath("/proyectos");
+    revalidatePath(`/proyectos/${id}`);
+    return {
+      success: true,
+      data: undefined,
+      message: bloqueado ? "Proyecto bloqueado." : "Proyecto desbloqueado.",
+    };
+  } catch (error) {
+    logger.error("Error al cambiar el bloqueo del proyecto", error);
+    return {
+      success: false,
+      message: "No se pudo cambiar el estado del proyecto.",
+    };
+  }
+}
+
 /** Elimina un proyecto y todas sus impresiones (cascada). */
 export async function eliminarProyecto(id: string): Promise<ActionResult> {
   try {

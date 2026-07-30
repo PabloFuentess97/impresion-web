@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Plus, FolderKanban, Layers, Clock } from "lucide-react";
+import { Plus, FolderKanban, Layers, Clock, Lock } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
 import { SearchBar } from "@/components/shared/search-bar";
@@ -109,14 +109,26 @@ export default async function ProyectosPage({
             </TableHeader>
             <TableBody>
               {items.map((p) => (
-                <TableRow key={p.id} className="group">
+                <TableRow
+                  key={p.id}
+                  className={
+                    p.bloqueado
+                      ? "group border-l-2 border-l-amber-400 bg-amber-50/60 hover:bg-amber-50 dark:border-l-amber-500/70 dark:bg-amber-500/10 dark:hover:bg-amber-500/[0.15]"
+                      : "group"
+                  }
+                >
                   <TableCell>
                     <Link
                       href={`/proyectos/${p.id}`}
                       className="block max-w-md"
                     >
-                      <span className="font-medium text-foreground transition-colors group-hover:text-primary">
-                        {p.titulo}
+                      <span className="flex items-center gap-1.5">
+                        {p.bloqueado && (
+                          <Lock className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                        )}
+                        <span className="font-medium text-foreground transition-colors group-hover:text-primary">
+                          {p.titulo}
+                        </span>
                       </span>
                       {p.descripcion && (
                         <span className="mt-0.5 line-clamp-1 text-sm text-muted-foreground">

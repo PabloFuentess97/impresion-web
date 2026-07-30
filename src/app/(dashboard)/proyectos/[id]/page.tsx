@@ -8,6 +8,8 @@ import {
   Pencil,
   Printer,
   Truck,
+  Lock,
+  FolderInput,
 } from "lucide-react";
 
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
@@ -90,6 +92,15 @@ export default async function ProyectoDetallePage({
         }
       />
 
+      {proyecto.bloqueado && (
+        <Badge
+          variant="secondary"
+          className="gap-1.5 border border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-400"
+        >
+          <Lock className="h-3.5 w-3.5" /> Proyecto bloqueado
+        </Badge>
+      )}
+
       {proyecto.descripcion && (
         <Card className="p-5">
           <p className="text-sm leading-relaxed text-muted-foreground">
@@ -97,6 +108,27 @@ export default async function ProyectoDetallePage({
           </p>
         </Card>
       )}
+
+      {/* Ruta de impresión (texto plano) */}
+      <Card className="flex items-start gap-3 p-5">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <FolderInput className="h-5 w-5" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-foreground">
+            Ruta de impresión
+          </p>
+          {proyecto.rutaImpresion ? (
+            <p className="mt-0.5 break-all font-mono text-sm text-muted-foreground">
+              {proyecto.rutaImpresion}
+            </p>
+          ) : (
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              Sin ruta configurada. Edita el proyecto para añadirla.
+            </p>
+          )}
+        </div>
+      </Card>
 
       {/* Métricas del proyecto */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

@@ -13,6 +13,12 @@ export const proyectoSchema = z.object({
     .max(2000, "La descripción no puede superar los 2000 caracteres.")
     .optional()
     .or(z.literal("")),
+  rutaImpresion: z
+    .string()
+    .trim()
+    .max(500, "La ruta no puede superar los 500 caracteres.")
+    .optional()
+    .or(z.literal("")),
 });
 
 export type ProyectoInput = z.infer<typeof proyectoSchema>;

@@ -89,6 +89,8 @@ export const proyectoService = {
     id: string;
     titulo: string;
     descripcion: string | null;
+    rutaImpresion: string | null;
+    bloqueado: boolean;
     createdAt: Date;
     updatedAt: Date;
     impresiones: { cantidad: number; tiempo: number }[];
@@ -106,6 +108,8 @@ export const proyectoService = {
       id: proyecto.id,
       titulo: proyecto.titulo,
       descripcion: proyecto.descripcion,
+      rutaImpresion: proyecto.rutaImpresion,
+      bloqueado: proyecto.bloqueado,
       createdAt: proyecto.createdAt,
       updatedAt: proyecto.updatedAt,
       totalImpresiones,
@@ -140,6 +144,7 @@ export const proyectoService = {
     return proyectoRepository.crear({
       titulo: data.titulo,
       descripcion: data.descripcion || null,
+      rutaImpresion: data.rutaImpresion || null,
     });
   },
 
@@ -147,7 +152,13 @@ export const proyectoService = {
     return proyectoRepository.actualizar(id, {
       titulo: data.titulo,
       descripcion: data.descripcion || null,
+      rutaImpresion: data.rutaImpresion || null,
     });
+  },
+
+  /** Bloquea o desbloquea un proyecto. */
+  alternarBloqueo(id: string, bloqueado: boolean) {
+    return proyectoRepository.actualizar(id, { bloqueado });
   },
 
   eliminar(id: string) {

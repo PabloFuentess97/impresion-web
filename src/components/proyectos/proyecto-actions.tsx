@@ -2,7 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { MoreHorizontal, Eye, Pencil, Trash2 } from "lucide-react";
+import {
+  MoreHorizontal,
+  Eye,
+  Pencil,
+  Trash2,
+  Lock,
+  Unlock,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -15,14 +22,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { ProyectoFormDialog } from "./proyecto-form-dialog";
-import { eliminarProyecto } from "@/actions/proyecto.actions";
+import {
+  eliminarProyecto,
+  alternarBloqueoProyecto,
+} from "@/actions/proyecto.actions";
 import type { Proyecto } from "@/types";
 
 /** Menú de acciones para un proyecto en el listado. */
 export function ProyectoActions({
   proyecto,
 }: {
-  proyecto: Pick<Proyecto, "id" | "titulo" | "descripcion">;
+  proyecto: Pick<
+    Proyecto,
+    "id" | "titulo" | "descripcion" | "rutaImpresion" | "bloqueado"
+  >;
 }) {
   const router = useRouter();
 
@@ -30,6 +43,16 @@ export function ProyectoActions({
     const resultado = await eliminarProyecto(proyecto.id);
     if (resultado.success) {
       toast.success(resultado.message ?? "Proyecto eliminado.");
+      router.refresh();
+    } else {
+      toast.error(resultado.message);
+    }
+  }
+
+  async function manejarBloqueo(bloqueado: boolean) {
+    const resultado = await alternarBloqueoProyecto(proyecto.id, bloqueado);
+    if (resultado.success) {
+      toast.success(resultado.message);
       router.refresh();
     } else {
       toast.error(resultado.message);
@@ -57,6 +80,26 @@ export function ProyectoActions({
             </DropdownMenuItem>
           }
         />
+
+        {proyecto.bloqueado ? (
+          <ConfirmDialog
+            titulo="Desbloquear proyecto"
+            descripcion={`Vas a desbloquear "${proyecto.titulo}". Volverá a su estado normal en el listado.`}
+            textoConfirmar="Desbloquear"
+            variante="default"
+            onConfirm={() => manejarBloqueo(false)}
+            trigger={
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <Unlock className="h-4 w-4" /> Desbloquear
+              </DropdownMenuItem>
+            }
+          />
+        ) : (
+          <DropdownMenuItem onSelect={() => manejarBloqueo(true)}>
+            <Lock className="h-4 w-4" /> Bloquear
+          </DropdownMenuItem>
+        )}
+
         <DropdownMenuSeparator />
         <ConfirmDialog
           titulo="Eliminar proyecto"
