@@ -72,14 +72,16 @@ export function ProyectoActions({
             <Eye className="h-4 w-4" /> Ver detalle
           </Link>
         </DropdownMenuItem>
-        <ProyectoFormDialog
-          proyecto={proyecto}
-          trigger={
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              <Pencil className="h-4 w-4" /> Editar
-            </DropdownMenuItem>
-          }
-        />
+        {!proyecto.bloqueado && (
+          <ProyectoFormDialog
+            proyecto={proyecto}
+            trigger={
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <Pencil className="h-4 w-4" /> Editar
+              </DropdownMenuItem>
+            }
+          />
+        )}
 
         {proyecto.bloqueado ? (
           <ConfirmDialog
@@ -100,21 +102,25 @@ export function ProyectoActions({
           </DropdownMenuItem>
         )}
 
-        <DropdownMenuSeparator />
-        <ConfirmDialog
-          titulo="Eliminar proyecto"
-          descripcion={`Se eliminará "${proyecto.titulo}" y todas sus impresiones. Esta acción no se puede deshacer.`}
-          textoConfirmar="Eliminar"
-          onConfirm={manejarEliminar}
-          trigger={
-            <DropdownMenuItem
-              onSelect={(e) => e.preventDefault()}
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash2 className="h-4 w-4" /> Eliminar
-            </DropdownMenuItem>
-          }
-        />
+        {!proyecto.bloqueado && (
+          <>
+            <DropdownMenuSeparator />
+            <ConfirmDialog
+              titulo="Eliminar proyecto"
+              descripcion={`Se eliminará "${proyecto.titulo}" y todas sus impresiones. Esta acción no se puede deshacer.`}
+              textoConfirmar="Eliminar"
+              onConfirm={manejarEliminar}
+              trigger={
+                <DropdownMenuItem
+                  onSelect={(e) => e.preventDefault()}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" /> Eliminar
+                </DropdownMenuItem>
+              }
+            />
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

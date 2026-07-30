@@ -15,8 +15,10 @@ claro/oscuro y totalmente en español.
 - 🔐 **Autenticación de administrador** (sin registro público) con Auth.js + bcrypt.
 - 📊 **Dashboard** con tarjetas estadísticas y gráficos de actividad.
 - 📁 **Proyectos** con CRUD completo, búsqueda, ordenación y paginación.
-  Incluyen **ruta de impresión** (texto plano) y **bloqueo** con resaltado
-  elegante en el listado (desbloquear requiere confirmación).
+  Incluyen **ruta de impresión** (texto plano) y **bloqueo**: los proyectos
+  bloqueados se resaltan en el listado y quedan en **solo lectura** (no se
+  pueden editar/eliminar ni cambiar sus impresiones y salidas); desbloquear
+  requiere confirmación.
 - 🖨️ **Impresiones** por proyecto (nombre, cantidad, tiempo, fecha automática).
 - 🚚 **Salidas** de material: unidades de un proyecto enviadas a un destino.
 - 📦 **Inventario** de artículos con nombre y cantidad (búsqueda, orden y
@@ -28,6 +30,8 @@ claro/oscuro y totalmente en español.
 - 📈 **Reportes** diario/semanal/mensual/personalizado con exportación a
   **PDF** y **Excel**, e **impresión** directa.
 - ⚙️ **Configuración** de empresa, logo, tema y datos del administrador.
+- 💾 **Copias de seguridad**: descarga de un volcado completo (JSON) de toda
+  la base de datos y **restauración** desde archivo (con confirmación fuerte).
 - 🌗 **Modo claro / oscuro** y diseño responsive.
 
 ---

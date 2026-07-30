@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/page-header";
 import { GeneralForm } from "@/components/configuracion/general-form";
 import { AdminForm } from "@/components/configuracion/admin-form";
+import { BackupCard } from "@/components/configuracion/backup-card";
 import { getSession } from "@/lib/session";
 import { configuracionService } from "@/services/configuracion.service";
 import { usuarioRepository } from "@/repositories/usuario.repository";
@@ -36,6 +37,7 @@ export default async function ConfiguracionPage() {
             admin={{ nombre: usuario.nombre, email: usuario.email }}
           />
         )}
+        <BackupCard />
       </div>
     </div>
   );

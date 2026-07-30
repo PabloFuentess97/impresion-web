@@ -67,6 +67,7 @@ export default async function ProyectoDetallePage({
 
   const proyectosSelect = [{ id: proyecto.id, titulo: proyecto.titulo }];
   const totalSalidas = salidas.reduce((a, s) => a + s.cantidad, 0);
+  const bloqueado = proyecto.bloqueado;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -81,23 +82,25 @@ export default async function ProyectoDetallePage({
         titulo={proyecto.titulo}
         descripcion={`Creado el ${formatearFechaLarga(proyecto.createdAt)}`}
         accion={
-          <ProyectoFormDialog
-            proyecto={proyecto}
-            trigger={
-              <Button variant="outline">
-                <Pencil className="h-4 w-4" /> Editar proyecto
-              </Button>
-            }
-          />
+          bloqueado ? undefined : (
+            <ProyectoFormDialog
+              proyecto={proyecto}
+              trigger={
+                <Button variant="outline">
+                  <Pencil className="h-4 w-4" /> Editar proyecto
+                </Button>
+              }
+            />
+          )
         }
       />
 
-      {proyecto.bloqueado && (
+      {bloqueado && (
         <Badge
           variant="secondary"
           className="gap-1.5 border border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-400"
         >
-          <Lock className="h-3.5 w-3.5" /> Proyecto bloqueado
+          <Lock className="h-3.5 w-3.5" /> Proyecto bloqueado · solo lectura
         </Badge>
       )}
 
@@ -172,30 +175,38 @@ export default async function ProyectoDetallePage({
             <h2 className="text-sm font-medium text-muted-foreground">
               Listado de impresiones
             </h2>
-            <ImpresionFormDialog
-              proyectoId={proyecto.id}
-              trigger={
-                <Button size="sm">
-                  <Plus className="h-4 w-4" /> Agregar impresión
-                </Button>
-              }
-            />
+            {!bloqueado && (
+              <ImpresionFormDialog
+                proyectoId={proyecto.id}
+                trigger={
+                  <Button size="sm">
+                    <Plus className="h-4 w-4" /> Agregar impresión
+                  </Button>
+                }
+              />
+            )}
           </div>
 
           {proyecto.impresiones.length === 0 ? (
             <EmptyState
               icono={<Printer />}
               titulo="Sin impresiones"
-              descripcion="Añade la primera impresión de este proyecto."
+              descripcion={
+                bloqueado
+                  ? "El proyecto está bloqueado. Desbloquéalo para añadir impresiones."
+                  : "Añade la primera impresión de este proyecto."
+              }
               accion={
-                <ImpresionFormDialog
-                  proyectoId={proyecto.id}
-                  trigger={
-                    <Button size="sm">
-                      <Plus className="h-4 w-4" /> Agregar impresión
-                    </Button>
-                  }
-                />
+                bloqueado ? undefined : (
+                  <ImpresionFormDialog
+                    proyectoId={proyecto.id}
+                    trigger={
+                      <Button size="sm">
+                        <Plus className="h-4 w-4" /> Agregar impresión
+                      </Button>
+                    }
+                  />
+                )
               }
             />
           ) : (
@@ -224,7 +235,7 @@ export default async function ProyectoDetallePage({
                         {formatearFecha(imp.fecha)}
                       </TableCell>
                       <TableCell>
-                        <ImpresionActions impresion={imp} />
+                        {!bloqueado && <ImpresionActions impresion={imp} />}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -240,32 +251,40 @@ export default async function ProyectoDetallePage({
             <h2 className="text-sm font-medium text-muted-foreground">
               Salidas de este proyecto
             </h2>
-            <SalidaFormDialog
-              proyectos={proyectosSelect}
-              proyectoIdFijo={proyecto.id}
-              trigger={
-                <Button size="sm">
-                  <Plus className="h-4 w-4" /> Registrar salida
-                </Button>
-              }
-            />
+            {!bloqueado && (
+              <SalidaFormDialog
+                proyectos={proyectosSelect}
+                proyectoIdFijo={proyecto.id}
+                trigger={
+                  <Button size="sm">
+                    <Plus className="h-4 w-4" /> Registrar salida
+                  </Button>
+                }
+              />
+            )}
           </div>
 
           {salidas.length === 0 ? (
             <EmptyState
               icono={<Truck />}
               titulo="Sin salidas"
-              descripcion="Registra las unidades que salen de este proyecto."
+              descripcion={
+                bloqueado
+                  ? "El proyecto está bloqueado. Desbloquéalo para registrar salidas."
+                  : "Registra las unidades que salen de este proyecto."
+              }
               accion={
-                <SalidaFormDialog
-                  proyectos={proyectosSelect}
-                  proyectoIdFijo={proyecto.id}
-                  trigger={
-                    <Button size="sm">
-                      <Plus className="h-4 w-4" /> Registrar salida
-                    </Button>
-                  }
-                />
+                bloqueado ? undefined : (
+                  <SalidaFormDialog
+                    proyectos={proyectosSelect}
+                    proyectoIdFijo={proyecto.id}
+                    trigger={
+                      <Button size="sm">
+                        <Plus className="h-4 w-4" /> Registrar salida
+                      </Button>
+                    }
+                  />
+                )
               }
             />
           ) : (
@@ -298,16 +317,18 @@ export default async function ProyectoDetallePage({
                         {formatearFecha(s.fecha)}
                       </TableCell>
                       <TableCell>
-                        <SalidaActions
-                          salida={{
-                            id: s.id,
-                            cantidad: s.cantidad,
-                            destino: s.destino,
-                            nota: s.nota,
-                            proyectoId: proyecto.id,
-                          }}
-                          proyectos={proyectosSelect}
-                        />
+                        {!bloqueado && (
+                          <SalidaActions
+                            salida={{
+                              id: s.id,
+                              cantidad: s.cantidad,
+                              destino: s.destino,
+                              nota: s.nota,
+                              proyectoId: proyecto.id,
+                            }}
+                            proyectos={proyectosSelect}
+                          />
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}

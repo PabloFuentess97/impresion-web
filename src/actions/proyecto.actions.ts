@@ -56,6 +56,12 @@ export async function actualizarProyecto(
     if (!existente) {
       return { success: false, message: "El proyecto no existe." };
     }
+    if (existente.bloqueado) {
+      return {
+        success: false,
+        message: "El proyecto está bloqueado. Desbloquéalo para editarlo.",
+      };
+    }
 
     await proyectoService.actualizar(id, parsed.data);
     revalidatePath("/proyectos");
@@ -104,6 +110,12 @@ export async function eliminarProyecto(id: string): Promise<ActionResult> {
     const existente = await proyectoService.obtener(id);
     if (!existente) {
       return { success: false, message: "El proyecto no existe." };
+    }
+    if (existente.bloqueado) {
+      return {
+        success: false,
+        message: "El proyecto está bloqueado. Desbloquéalo para eliminarlo.",
+      };
     }
 
     await proyectoService.eliminar(id);

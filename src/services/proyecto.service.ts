@@ -161,6 +161,12 @@ export const proyectoService = {
     return proyectoRepository.actualizar(id, { bloqueado });
   },
 
+  /** Indica si un proyecto está bloqueado (protegido contra cambios). */
+  async estaBloqueado(id: string): Promise<boolean> {
+    const proyecto = await proyectoRepository.obtener(id);
+    return Boolean(proyecto?.bloqueado);
+  },
+
   eliminar(id: string) {
     return proyectoRepository.eliminar(id);
   },

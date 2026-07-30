@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { impresionService } from "@/services/impresion.service";
+import { proyectoService } from "@/services/proyecto.service";
 import {
   impresionSchema,
   impresionEditSchema,
@@ -9,6 +10,9 @@ import {
 import { requireAuth } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types";
+
+const MENSAJE_BLOQUEADO =
+  "El proyecto está bloqueado. Desbloquéalo para hacer cambios.";
 
 /** Crea una impresión dentro de un proyecto. */
 export async function crearImpresion(input: unknown): Promise<ActionResult> {
@@ -21,6 +25,10 @@ export async function crearImpresion(input: unknown): Promise<ActionResult> {
         message: "Revisa los datos de la impresión.",
         fieldErrors: parsed.error.flatten().fieldErrors,
       };
+    }
+
+    if (await proyectoService.estaBloqueado(parsed.data.proyectoId)) {
+      return { success: false, message: MENSAJE_BLOQUEADO };
     }
 
     await impresionService.crear(parsed.data);
@@ -54,6 +62,9 @@ export async function actualizarImpresion(
     if (!existente) {
       return { success: false, message: "La impresión no existe." };
     }
+    if (await proyectoService.estaBloqueado(existente.proyectoId)) {
+      return { success: false, message: MENSAJE_BLOQUEADO };
+    }
 
     await impresionService.actualizar(id, parsed.data);
     revalidatePath(`/proyectos/${existente.proyectoId}`);
@@ -72,6 +83,9 @@ export async function eliminarImpresion(id: string): Promise<ActionResult> {
     const existente = await impresionService.obtener(id);
     if (!existente) {
       return { success: false, message: "La impresión no existe." };
+    }
+    if (await proyectoService.estaBloqueado(existente.proyectoId)) {
+      return { success: false, message: MENSAJE_BLOQUEADO };
     }
 
     await impresionService.eliminar(id);
