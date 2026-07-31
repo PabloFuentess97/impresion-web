@@ -6,6 +6,7 @@ import {
   Droplets,
   Package,
   FileBarChart,
+  BookOpen,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -25,5 +26,6 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Tintas y papel", href: "/tintas", icono: Droplets },
   { label: "Incidencias", href: "/incidencias", icono: AlertTriangle },
   { label: "Reportes", href: "/reportes", icono: FileBarChart },
+  { label: "Base de conocimiento", href: "/base-conocimiento", icono: BookOpen },
   { label: "Configuración", href: "/configuracion", icono: Settings },
 ];
