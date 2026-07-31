@@ -44,6 +44,10 @@ model Proyecto {
   descripcion String?
   /// Ruta de impresión en texto plano (no se sube ningún archivo).
   rutaImpresion String?
+  /// Cantidad objetivo a producir (lo que hay que hacer). Opcional.
+  cantidadProduccion Int?
+  /// Notas del proyecto en HTML enriquecido (editor WYSIWYG). Opcional.
+  notas       String?
   /// Si está bloqueado, se resalta en el listado y requiere confirmación
   /// para desbloquearlo.
   bloqueado   Boolean  @default(false)

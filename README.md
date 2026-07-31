@@ -15,10 +15,12 @@ claro/oscuro y totalmente en español.
 - 🔐 **Autenticación de administrador** (sin registro público) con Auth.js + bcrypt.
 - 📊 **Dashboard** con tarjetas estadísticas y gráficos de actividad.
 - 📁 **Proyectos** con CRUD completo, búsqueda, ordenación y paginación.
-  Incluyen **ruta de impresión** (texto plano) y **bloqueo**: los proyectos
-  bloqueados se resaltan en el listado y quedan en **solo lectura** (no se
-  pueden editar/eliminar ni cambiar sus impresiones y salidas); desbloquear
-  requiere confirmación.
+  Incluyen **ruta de impresión** (texto plano), **cantidad de producción**
+  opcional (objetivo a producir, con barra de progreso frente a lo ya
+  producido), **notas enriquecidas (WYSIWYG)** por proyecto y **bloqueo**: los
+  proyectos bloqueados se resaltan en el listado y quedan en **solo lectura**
+  (no se pueden editar/eliminar ni cambiar sus impresiones, salidas y notas);
+  desbloquear requiere confirmación.
 - 🖨️ **Impresiones** por proyecto (nombre, cantidad, tiempo, fecha automática).
 - 🚚 **Salidas** de material: unidades de un proyecto enviadas a un destino.
 - 📦 **Inventario** de artículos con nombre y cantidad (búsqueda, orden y

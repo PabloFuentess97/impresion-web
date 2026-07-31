@@ -31,7 +31,7 @@ interface ProyectoFormDialogProps {
   trigger: React.ReactNode;
   proyecto?: Pick<
     Proyecto,
-    "id" | "titulo" | "descripcion" | "rutaImpresion"
+    "id" | "titulo" | "descripcion" | "rutaImpresion" | "cantidadProduccion"
   >;
 }
 
@@ -56,6 +56,7 @@ export function ProyectoFormDialog({
       titulo: proyecto?.titulo ?? "",
       descripcion: proyecto?.descripcion ?? "",
       rutaImpresion: proyecto?.rutaImpresion ?? "",
+      cantidadProduccion: proyecto?.cantidadProduccion ?? undefined,
     },
   });
 
@@ -65,6 +66,7 @@ export function ProyectoFormDialog({
         titulo: proyecto?.titulo ?? "",
         descripcion: proyecto?.descripcion ?? "",
         rutaImpresion: proyecto?.rutaImpresion ?? "",
+        cantidadProduccion: proyecto?.cantidadProduccion ?? undefined,
       });
     }
   }, [abierto, proyecto, reset]);
@@ -118,6 +120,33 @@ export function ProyectoFormDialog({
             {errors.descripcion && (
               <p className="text-xs text-destructive">
                 {errors.descripcion.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="cantidadProduccion">
+              Cantidad de producción{" "}
+              <span className="font-normal text-muted-foreground">
+                (opcional)
+              </span>
+            </Label>
+            <Input
+              id="cantidadProduccion"
+              type="number"
+              min={0}
+              step={1}
+              inputMode="numeric"
+              placeholder="Ej. 500"
+              {...register("cantidadProduccion")}
+            />
+            <p className="text-xs text-muted-foreground">
+              Objetivo a producir (lo que hay que hacer). Déjalo vacío si no
+              aplica.
+            </p>
+            {errors.cantidadProduccion && (
+              <p className="text-xs text-destructive">
+                {errors.cantidadProduccion.message}
               </p>
             )}
           </div>
