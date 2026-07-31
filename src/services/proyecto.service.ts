@@ -2,6 +2,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { proyectoRepository } from "@/repositories/proyecto.repository";
 import { PAGINA_TAMANO } from "@/lib/constants";
+import { sanitizarHtml } from "@/lib/sanitize";
 import type {
   Paginado,
   ProyectoConMetricas,
@@ -90,6 +91,8 @@ export const proyectoService = {
     titulo: string;
     descripcion: string | null;
     rutaImpresion: string | null;
+    cantidadProduccion: number | null;
+    notas: string | null;
     bloqueado: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -109,6 +112,8 @@ export const proyectoService = {
       titulo: proyecto.titulo,
       descripcion: proyecto.descripcion,
       rutaImpresion: proyecto.rutaImpresion,
+      cantidadProduccion: proyecto.cantidadProduccion,
+      notas: proyecto.notas,
       bloqueado: proyecto.bloqueado,
       createdAt: proyecto.createdAt,
       updatedAt: proyecto.updatedAt,
@@ -145,6 +150,7 @@ export const proyectoService = {
       titulo: data.titulo,
       descripcion: data.descripcion || null,
       rutaImpresion: data.rutaImpresion || null,
+      cantidadProduccion: data.cantidadProduccion ?? null,
     });
   },
 
@@ -153,7 +159,14 @@ export const proyectoService = {
       titulo: data.titulo,
       descripcion: data.descripcion || null,
       rutaImpresion: data.rutaImpresion || null,
+      cantidadProduccion: data.cantidadProduccion ?? null,
     });
+  },
+
+  /** Guarda las notas enriquecidas (HTML) del proyecto, ya sanitizadas. */
+  guardarNotas(id: string, notas: string) {
+    const limpio = sanitizarHtml(notas);
+    return proyectoRepository.actualizar(id, { notas: limpio || null });
   },
 
   /** Bloquea o desbloquea un proyecto. */

@@ -34,7 +34,12 @@ export function ProyectoActions({
 }: {
   proyecto: Pick<
     Proyecto,
-    "id" | "titulo" | "descripcion" | "rutaImpresion" | "bloqueado"
+    | "id"
+    | "titulo"
+    | "descripcion"
+    | "rutaImpresion"
+    | "cantidadProduccion"
+    | "bloqueado"
   >;
 }) {
   const router = useRouter();

@@ -145,6 +145,12 @@ export default async function ProyectosPage({
                   </TableCell>
                   <TableCell className="text-center text-sm text-muted-foreground">
                     {formatearNumero(p.cantidadTotal)}
+                    {p.cantidadProduccion != null && (
+                      <span className="text-muted-foreground/70">
+                        {" / "}
+                        {formatearNumero(p.cantidadProduccion)}
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className="text-center">
                     <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">

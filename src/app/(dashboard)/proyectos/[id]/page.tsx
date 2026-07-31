@@ -10,6 +10,8 @@ import {
   Truck,
   Lock,
   FolderInput,
+  Target,
+  StickyNote,
 } from "lucide-react";
 
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
@@ -29,6 +31,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ProyectoFormDialog } from "@/components/proyectos/proyecto-form-dialog";
+import { ProyectoNotas } from "@/components/proyectos/proyecto-notas";
 import { ImpresionFormDialog } from "@/components/proyectos/impresion-form-dialog";
 import { ImpresionActions } from "@/components/proyectos/impresion-actions";
 import { SalidaFormDialog } from "@/components/salidas/salida-form-dialog";
@@ -68,6 +71,14 @@ export default async function ProyectoDetallePage({
   const proyectosSelect = [{ id: proyecto.id, titulo: proyecto.titulo }];
   const totalSalidas = salidas.reduce((a, s) => a + s.cantidad, 0);
   const bloqueado = proyecto.bloqueado;
+
+  // Progreso de producción: cantidad producida frente al objetivo (si existe).
+  const objetivo = proyecto.cantidadProduccion;
+  const progreso =
+    objetivo && objetivo > 0
+      ? Math.min(100, Math.round((proyecto.cantidadTotal / objetivo) * 100))
+      : null;
+  const completado = objetivo != null && proyecto.cantidadTotal >= objetivo;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -133,6 +144,48 @@ export default async function ProyectoDetallePage({
         </div>
       </Card>
 
+      {/* Producción objetivo (si está definida) */}
+      {objetivo != null && (
+        <Card className="p-5">
+          <div className="flex items-start gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Target className="h-5 w-5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm font-medium text-foreground">
+                  Producción
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-foreground">
+                    {formatearNumero(proyecto.cantidadTotal)}
+                  </span>{" "}
+                  de {formatearNumero(objetivo)} unidades
+                  {progreso != null && (
+                    <span className="ml-1 text-xs">({progreso}%)</span>
+                  )}
+                </p>
+              </div>
+              <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className={
+                    completado
+                      ? "h-full rounded-full bg-success transition-all"
+                      : "h-full rounded-full bg-primary transition-all"
+                  }
+                  style={{ width: `${progreso ?? 0}%` }}
+                />
+              </div>
+              {completado && (
+                <p className="mt-1.5 text-xs font-medium text-success">
+                  Objetivo de producción alcanzado.
+                </p>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Métricas del proyecto */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -167,6 +220,9 @@ export default async function ProyectoDetallePage({
             Impresiones ({proyecto.totalImpresiones})
           </TabsTrigger>
           <TabsTrigger value="salidas">Salidas ({salidas.length})</TabsTrigger>
+          <TabsTrigger value="notas" className="gap-1.5">
+            <StickyNote className="h-3.5 w-3.5" /> Notas
+          </TabsTrigger>
         </TabsList>
 
         {/* --- Impresiones --- */}
@@ -336,6 +392,18 @@ export default async function ProyectoDetallePage({
               </Table>
             </Card>
           )}
+        </TabsContent>
+
+        {/* --- Notas (WYSIWYG) --- */}
+        <TabsContent value="notas" className="space-y-4">
+          <h2 className="text-sm font-medium text-muted-foreground">
+            Notas del proyecto
+          </h2>
+          <ProyectoNotas
+            proyectoId={proyecto.id}
+            notas={proyecto.notas}
+            bloqueado={bloqueado}
+          />
         </TabsContent>
       </Tabs>
     </div>

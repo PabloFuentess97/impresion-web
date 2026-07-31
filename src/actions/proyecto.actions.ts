@@ -2,7 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { proyectoService } from "@/services/proyecto.service";
-import { proyectoSchema } from "@/validators/proyecto.validator";
+import {
+  proyectoSchema,
+  notasProyectoSchema,
+} from "@/validators/proyecto.validator";
 import { requireAuth } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types";
@@ -71,6 +74,42 @@ export async function actualizarProyecto(
   } catch (error) {
     logger.error("Error al actualizar proyecto", error);
     return { success: false, message: "No se pudo actualizar el proyecto." };
+  }
+}
+
+/** Guarda las notas enriquecidas (WYSIWYG) de un proyecto. */
+export async function guardarNotasProyecto(
+  id: string,
+  input: unknown,
+): Promise<ActionResult> {
+  try {
+    await requireAuth();
+    const parsed = notasProyectoSchema.safeParse(input);
+    if (!parsed.success) {
+      return {
+        success: false,
+        message: "Las notas no son válidas.",
+        fieldErrors: parsed.error.flatten().fieldErrors,
+      };
+    }
+
+    const existente = await proyectoService.obtener(id);
+    if (!existente) {
+      return { success: false, message: "El proyecto no existe." };
+    }
+    if (existente.bloqueado) {
+      return {
+        success: false,
+        message: "El proyecto está bloqueado. Desbloquéalo para editar las notas.",
+      };
+    }
+
+    await proyectoService.guardarNotas(id, parsed.data.notas ?? "");
+    revalidatePath(`/proyectos/${id}`);
+    return { success: true, data: undefined, message: "Notas guardadas." };
+  } catch (error) {
+    logger.error("Error al guardar las notas del proyecto", error);
+    return { success: false, message: "No se pudieron guardar las notas." };
   }
 }
 
