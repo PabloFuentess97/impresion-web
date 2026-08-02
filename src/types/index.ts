@@ -3,7 +3,9 @@ import type {
   Impresion,
   Incidencia,
   Inventario,
+  Recogida,
   EstadoIncidencia,
+  EstadoRecogida,
 } from "@prisma/client";
 
 /**
@@ -68,4 +70,17 @@ export interface Paginado<T> {
   tamano: number;
 }
 
-export type { Proyecto, Impresion, Incidencia, Inventario, EstadoIncidencia };
+/** Recogida con el proyecto asociado (id y título) para los listados. */
+export interface RecogidaConProyecto extends Recogida {
+  proyecto: { id: string; titulo: string };
+}
+
+export type {
+  Proyecto,
+  Impresion,
+  Incidencia,
+  Inventario,
+  Recogida,
+  EstadoIncidencia,
+  EstadoRecogida,
+};

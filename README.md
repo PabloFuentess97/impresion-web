@@ -23,6 +23,11 @@ claro/oscuro y totalmente en español.
   desbloquear requiere confirmación.
 - 🖨️ **Impresiones** por proyecto (nombre, cantidad, tiempo, fecha automática).
 - 🚚 **Salidas** de material: unidades de un proyecto enviadas a un destino.
+- 📥 **Recogidas por QR**: los trabajadores escanean un QR (enlace secreto
+  regenerable, sin cuentas) y registran NBI + nombre + unidades de un
+  proyecto. Cada solicitud queda **pendiente**; el administrador la **aprueba**
+  (se registra como salida y se descuenta del proyecto) o la **deniega**. Nada
+  se descuenta automáticamente.
 - 📦 **Inventario** de artículos con nombre y cantidad (búsqueda, orden y
   paginación).
 - 🎨 **Tintas y papel**: tintas configurables (4, 6 o 9) con control de nivel

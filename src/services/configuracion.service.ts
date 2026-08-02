@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import { randomBytes } from "node:crypto";
 import { configuracionRepository } from "@/repositories/configuracion.repository";
 import { usuarioRepository } from "@/repositories/usuario.repository";
 import type { ConfiguracionInput, AdminInput } from "@/validators/configuracion.validator";
@@ -9,6 +10,13 @@ import type { ConfiguracionInput, AdminInput } from "@/validators/configuracion.
 export const configuracionService = {
   obtener() {
     return configuracionRepository.obtenerOCrear();
+  },
+
+  /** Genera un nuevo token para el enlace del QR de recogidas y lo guarda. */
+  async regenerarTokenRecogida(): Promise<string> {
+    const token = randomBytes(24).toString("base64url");
+    await configuracionRepository.establecerRecogidaToken(token);
+    return token;
   },
 
   actualizar(data: ConfiguracionInput) {

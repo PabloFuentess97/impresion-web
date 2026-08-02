@@ -14,6 +14,15 @@ export const configuracionRepository = {
     });
   },
 
+  /** Establece (o regenera) el token del enlace del QR de recogidas. */
+  async establecerRecogidaToken(token: string) {
+    const config = await this.obtenerOCrear();
+    return prisma.configuracion.update({
+      where: { id: config.id },
+      data: { recogidaToken: token },
+    });
+  },
+
   async actualizar(data: Prisma.ConfiguracionUpdateInput) {
     const existente = await prisma.configuracion.findFirst();
     if (!existente) {

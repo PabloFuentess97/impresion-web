@@ -23,6 +23,13 @@ enum RolUsuario {
   ADMIN
 }
 
+/// Estado de una recogida registrada por un trabajador (vía QR).
+enum EstadoRecogida {
+  PENDIENTE
+  APROBADA
+  DENEGADA
+}
+
 /// Usuario administrador. No existe registro público.
 model Usuario {
   id        String     @id @default(cuid())
@@ -56,6 +63,7 @@ model Proyecto {
 
   impresiones Impresion[]
   salidas     Salida[]
+  recogidas   Recogida[]
 
   @@index([createdAt])
   @@map("proyectos")
@@ -199,12 +207,41 @@ model Inventario {
   @@map("inventario")
 }
 
+/// Recogida de unidades registrada por un trabajador desde el formulario QR.
+/// Queda PENDIENTE hasta que el administrador la aprueba o deniega.
+/// Al aprobar se genera una Salida (se descuenta del proyecto).
+model Recogida {
+  id         String         @id @default(cuid())
+  /// Identificador del trabajador (texto libre, sin cuenta).
+  nbi        String
+  nombre     String
+  unidades   Int
+  estado     EstadoRecogida @default(PENDIENTE)
+  /// Solo fecha (sin hora) de la solicitud.
+  fecha      DateTime       @default(now()) @db.Date
+  createdAt  DateTime       @default(now())
+  /// Momento en que se aprobó o denegó.
+  resueltoEn DateTime?
+  /// Salida generada al aprobar (referencia suelta, sin relación formal).
+  salidaId   String?
+
+  proyectoId String
+  proyecto   Proyecto       @relation(fields: [proyectoId], references: [id], onDelete: Cascade)
+
+  @@index([estado])
+  @@index([proyectoId])
+  @@index([createdAt])
+  @@map("recogidas")
+}
+
 /// Configuración global de la aplicación (registro único).
 model Configuracion {
   id            String   @id @default(cuid())
   nombreEmpresa String   @default("ImpresiónWeb")
   logoUrl       String?
   tema          String   @default("system") // "light" | "dark" | "system"
+  /// Token secreto del enlace del QR de recogidas (regenerable).
+  recogidaToken String?
   updatedAt     DateTime @updatedAt
 
   @@map("configuracion")
