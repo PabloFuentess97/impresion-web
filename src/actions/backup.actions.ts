@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { backupService } from "@/services/backup.service";
-import { requireAuth } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types";
 
@@ -29,7 +29,7 @@ export async function restaurarBackup(
   payload: unknown,
 ): Promise<ActionResult<{ total: number }>> {
   try {
-    await requireAuth();
+    await requireAdmin();
 
     const datos = (payload as { datos?: unknown } | null)?.datos;
     if (!datos || typeof datos !== "object" || Array.isArray(datos)) {

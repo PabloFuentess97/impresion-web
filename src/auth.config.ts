@@ -22,6 +22,8 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const estaAutenticado = !!auth?.user;
       const esRutaLogin = nextUrl.pathname.startsWith("/login");
+      const rol = auth?.user?.rol;
+      const esLector = rol === "LECTOR";
 
       // Rutas privadas de la aplicación.
       const rutasPrivadas = [
@@ -39,13 +41,25 @@ export const authConfig = {
         nextUrl.pathname.startsWith(ruta),
       );
 
+      // Rutas que puede ver el usuario de solo lectura.
+      const permitidasLector = ["/proyectos", "/salidas"];
+      const lectorPuedeVer = permitidasLector.some((ruta) =>
+        nextUrl.pathname.startsWith(ruta),
+      );
+
       if (esRutaPrivada) {
-        return estaAutenticado; // Si no está autenticado, redirige a /login.
+        if (!estaAutenticado) return false; // Redirige a /login.
+        // El lector solo puede acceder a Proyectos y Salidas.
+        if (esLector && !lectorPuedeVer) {
+          return Response.redirect(new URL("/proyectos", nextUrl));
+        }
+        return true;
       }
 
-      // Si ya está autenticado y visita /login, lo enviamos al dashboard.
+      // Si ya está autenticado y visita /login, lo enviamos a su inicio.
       if (esRutaLogin && estaAutenticado) {
-        return Response.redirect(new URL("/dashboard", nextUrl));
+        const destino = esLector ? "/proyectos" : "/dashboard";
+        return Response.redirect(new URL(destino, nextUrl));
       }
 
       return true;
@@ -55,6 +69,7 @@ export const authConfig = {
       if (user) {
         token.id = user.id;
         token.nombre = (user as { nombre?: string }).nombre ?? user.name ?? "";
+        token.rol = (user as { rol?: "ADMIN" | "LECTOR" }).rol ?? "ADMIN";
       }
       return token;
     },
@@ -63,6 +78,7 @@ export const authConfig = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.nombre = (token.nombre as string) ?? "";
+        session.user.rol = (token.rol as "ADMIN" | "LECTOR") ?? "ADMIN";
       }
       return session;
     },

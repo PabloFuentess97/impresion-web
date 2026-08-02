@@ -7,14 +7,14 @@ import {
   actualizarPapelSchema,
   editarPapelSchema,
 } from "@/validators/papel.validator";
-import { requireAuth } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types";
 
 /** Crea un tipo de papel con su número de rollos inicial. */
 export async function crearPapel(input: unknown): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = crearPapelSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -38,7 +38,7 @@ export async function actualizarRollosPapel(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = actualizarPapelSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -64,7 +64,7 @@ export async function actualizarRollosPapel(
 /** Edita el nombre de un papel. */
 export async function editarPapel(input: unknown): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = editarPapelSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -86,7 +86,7 @@ export async function editarPapel(input: unknown): Promise<ActionResult> {
 /** Elimina un tipo de papel. */
 export async function eliminarPapel(id: string): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     await papelService.eliminar(id);
     revalidatePath("/tintas");
     return { success: true, data: undefined, message: "Papel eliminado." };

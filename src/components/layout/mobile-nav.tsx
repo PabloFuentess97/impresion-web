@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import { SidebarNav } from "./sidebar-nav";
 
 /** Navegación lateral para móviles (drawer). */
-export function MobileNav({ nombreEmpresa }: { nombreEmpresa: string }) {
+export function MobileNav({
+  nombreEmpresa,
+  esLector = false,
+}: {
+  nombreEmpresa: string;
+  esLector?: boolean;
+}) {
   const [abierto, setAbierto] = React.useState(false);
 
   return (
@@ -36,7 +42,7 @@ export function MobileNav({ nombreEmpresa }: { nombreEmpresa: string }) {
               </Button>
             </DialogPrimitive.Close>
           </div>
-          <SidebarNav onNavigate={() => setAbierto(false)} />
+          <SidebarNav esLector={esLector} onNavigate={() => setAbierto(false)} />
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

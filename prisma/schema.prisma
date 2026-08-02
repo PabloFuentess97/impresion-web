@@ -21,6 +21,8 @@ enum EstadoIncidencia {
 /// Rol del usuario dentro del sistema.
 enum RolUsuario {
   ADMIN
+  /// Solo lectura: acceso limitado a ver Proyectos y Salidas.
+  LECTOR
 }
 
 /// Estado de una recogida registrada por un trabajador (vía QR).

@@ -12,6 +12,11 @@ export async function GET() {
   if (!session?.user?.id) {
     return new NextResponse("No autorizado.", { status: 401 });
   }
+  if (session.user.rol !== "ADMIN") {
+    return new NextResponse("Solo el administrador puede descargar copias.", {
+      status: 403,
+    });
+  }
 
   try {
     const backup = await backupService.exportar();

@@ -12,7 +12,10 @@ claro/oscuro y totalmente en español.
 
 ## ✨ Características
 
-- 🔐 **Autenticación de administrador** (sin registro público) con Auth.js + bcrypt.
+- 🔐 **Autenticación** (sin registro público) con Auth.js + bcrypt. Dos roles:
+  **ADMIN** (acceso total) y **LECTOR** (solo lectura, limitado a ver
+  Proyectos y Salidas; sin crear/editar/eliminar). El rol se aplica en el
+  middleware, en las Server Actions y ocultando la interfaz de edición.
 - 📊 **Dashboard** con tarjetas estadísticas y gráficos de actividad.
 - 📁 **Proyectos** con CRUD completo, búsqueda, ordenación y paginación.
   Incluyen **ruta de impresión** (texto plano), **cantidad de producción**

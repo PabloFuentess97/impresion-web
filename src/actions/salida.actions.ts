@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { salidaService } from "@/services/salida.service";
 import { proyectoService } from "@/services/proyecto.service";
 import { salidaSchema, salidaEditSchema } from "@/validators/salida.validator";
-import { requireAuth } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types";
 
@@ -14,7 +14,7 @@ const MENSAJE_BLOQUEADO =
 /** Crea una nueva salida. */
 export async function crearSalida(input: unknown): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = salidaSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -45,7 +45,7 @@ export async function actualizarSalida(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = salidaEditSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -76,7 +76,7 @@ export async function actualizarSalida(
 /** Elimina una salida. */
 export async function eliminarSalida(id: string): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const existente = await salidaService.obtener(id);
     if (!existente) {
       return { success: false, message: "La salida no existe." };

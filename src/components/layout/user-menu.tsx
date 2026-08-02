@@ -17,10 +17,11 @@ import { cerrarSesion } from "@/actions/auth.actions";
 interface UserMenuProps {
   nombre: string;
   email: string;
+  esLector?: boolean;
 }
 
 /** Menú de usuario con datos del administrador y cierre de sesión. */
-export function UserMenu({ nombre, email }: UserMenuProps) {
+export function UserMenu({ nombre, email, esLector = false }: UserMenuProps) {
   const iniciales = nombre
     .split(" ")
     .map((p) => p[0])
@@ -44,15 +45,24 @@ export function UserMenu({ nombre, email }: UserMenuProps) {
             <span className="truncate text-xs font-normal text-muted-foreground">
               {email}
             </span>
+            {esLector && (
+              <span className="mt-1 w-fit rounded-full border border-border bg-muted/60 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                Solo lectura
+              </span>
+            )}
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/configuracion">
-            <Settings className="h-4 w-4" /> Configuración
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
+        {!esLector && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link href="/configuracion">
+                <Settings className="h-4 w-4" /> Configuración
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <form action={cerrarSesion}>
           <button type="submit" className="w-full">
             <DropdownMenuItem className="text-destructive focus:text-destructive">

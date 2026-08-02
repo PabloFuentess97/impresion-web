@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { incidenciaService } from "@/services/incidencia.service";
 import { incidenciaSchema } from "@/validators/incidencia.validator";
-import { requireAuth } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types";
 
@@ -12,7 +12,7 @@ export async function crearIncidencia(
   input: unknown,
 ): Promise<ActionResult<{ id: string }>> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = incidenciaSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -42,7 +42,7 @@ export async function actualizarIncidencia(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = incidenciaSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -70,7 +70,7 @@ export async function actualizarIncidencia(
 /** Elimina una incidencia. */
 export async function eliminarIncidencia(id: string): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const existente = await incidenciaService.obtener(id);
     if (!existente) {
       return { success: false, message: "La incidencia no existe." };

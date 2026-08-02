@@ -3,15 +3,25 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { NAV_ITEMS } from "./nav-config";
+import { NAV_ITEMS, HREFS_LECTOR } from "./nav-config";
 
 /** Lista de enlaces de navegación con estado activo. */
-export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+export function SidebarNav({
+  onNavigate,
+  esLector = false,
+}: {
+  onNavigate?: () => void;
+  esLector?: boolean;
+}) {
   const pathname = usePathname();
+
+  const items = esLector
+    ? NAV_ITEMS.filter((item) => HREFS_LECTOR.includes(item.href))
+    : NAV_ITEMS;
 
   return (
     <nav className="flex flex-1 flex-col gap-1 px-3">
-      {NAV_ITEMS.map((item) => {
+      {items.map((item) => {
         const activo =
           pathname === item.href || pathname.startsWith(`${item.href}/`);
         const Icono = item.icono;

@@ -6,7 +6,7 @@ import {
   proyectoSchema,
   notasProyectoSchema,
 } from "@/validators/proyecto.validator";
-import { requireAuth } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types";
 
@@ -15,7 +15,7 @@ export async function crearProyecto(
   input: unknown,
 ): Promise<ActionResult<{ id: string }>> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = proyectoSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -45,7 +45,7 @@ export async function actualizarProyecto(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = proyectoSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -83,7 +83,7 @@ export async function guardarNotasProyecto(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = notasProyectoSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -119,7 +119,7 @@ export async function alternarBloqueoProyecto(
   bloqueado: boolean,
 ): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const existente = await proyectoService.obtener(id);
     if (!existente) {
       return { success: false, message: "El proyecto no existe." };
@@ -145,7 +145,7 @@ export async function alternarBloqueoProyecto(
 /** Elimina un proyecto y todas sus impresiones (cascada). */
 export async function eliminarProyecto(id: string): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const existente = await proyectoService.obtener(id);
     if (!existente) {
       return { success: false, message: "El proyecto no existe." };

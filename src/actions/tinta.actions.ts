@@ -7,14 +7,14 @@ import {
   actualizarTintaSchema,
   editarTintaSchema,
 } from "@/validators/tinta.validator";
-import { requireAuth } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types";
 
 /** Configura el número de tintas activas (4, 6 o 9). */
 export async function configurarTintas(input: unknown): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = configurarTintasSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -42,7 +42,7 @@ export async function actualizarPorcentajeTinta(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = actualizarTintaSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -68,7 +68,7 @@ export async function actualizarPorcentajeTinta(
 /** Edita el nombre y color de una tinta. */
 export async function editarTinta(input: unknown): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = editarTintaSchema.safeParse(input);
     if (!parsed.success) {
       return {

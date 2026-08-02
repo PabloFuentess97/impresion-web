@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { recogidaService } from "@/services/recogida.service";
 import { configuracionService } from "@/services/configuracion.service";
 import { crearRecogidaSchema } from "@/validators/recogida.validator";
-import { requireAuth } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types";
 
@@ -56,7 +56,7 @@ export async function crearRecogidaPublica(
 /** Aprueba una recogida pendiente (genera salida y descuenta). */
 export async function aprobarRecogida(id: string): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const resultado = await recogidaService.aprobar(id);
     if (!resultado.ok) {
       return { success: false, message: resultado.error };
@@ -80,7 +80,7 @@ export async function aprobarRecogida(id: string): Promise<ActionResult> {
 /** Deniega una recogida pendiente (no descuenta nada). */
 export async function denegarRecogida(id: string): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const resultado = await recogidaService.denegar(id);
     if (!resultado.ok) {
       return { success: false, message: resultado.error };
@@ -97,7 +97,7 @@ export async function denegarRecogida(id: string): Promise<ActionResult> {
 /** Regenera el token del enlace del QR (invalida el QR anterior). */
 export async function regenerarTokenRecogida(): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     await configuracionService.regenerarTokenRecogida();
     revalidatePath("/recogidas");
     return {

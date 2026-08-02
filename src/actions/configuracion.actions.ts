@@ -6,7 +6,7 @@ import {
   configuracionSchema,
   adminSchema,
 } from "@/validators/configuracion.validator";
-import { requireAuth } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types";
 
@@ -15,7 +15,7 @@ export async function actualizarConfiguracion(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = configuracionSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -42,7 +42,7 @@ export async function actualizarConfiguracion(
 /** Actualiza los datos del administrador (nombre, email, contraseña). */
 export async function actualizarAdmin(input: unknown): Promise<ActionResult> {
   try {
-    const session = await requireAuth();
+    const session = await requireAdmin();
     const parsed = adminSchema.safeParse(input);
     if (!parsed.success) {
       return {

@@ -2,7 +2,13 @@ import { Printer } from "lucide-react";
 import { SidebarNav } from "./sidebar-nav";
 
 /** Barra lateral fija (escritorio). */
-export function Sidebar({ nombreEmpresa }: { nombreEmpresa: string }) {
+export function Sidebar({
+  nombreEmpresa,
+  esLector = false,
+}: {
+  nombreEmpresa: string;
+  esLector?: boolean;
+}) {
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-border bg-card lg:flex">
       <div className="flex h-16 items-center gap-2.5 border-b border-border px-6">
@@ -14,7 +20,7 @@ export function Sidebar({ nombreEmpresa }: { nombreEmpresa: string }) {
         </span>
       </div>
       <div className="flex flex-1 flex-col overflow-y-auto py-4 scrollbar-thin">
-        <SidebarNav />
+        <SidebarNav esLector={esLector} />
       </div>
       <div className="border-t border-border p-4">
         <p className="text-xs text-muted-foreground">

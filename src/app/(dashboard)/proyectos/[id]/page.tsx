@@ -38,6 +38,7 @@ import { SalidaFormDialog } from "@/components/salidas/salida-form-dialog";
 import { SalidaActions } from "@/components/salidas/salida-actions";
 import { proyectoService } from "@/services/proyecto.service";
 import { salidaService } from "@/services/salida.service";
+import { getSession } from "@/lib/session";
 import {
   formatearFecha,
   formatearFechaLarga,
@@ -61,9 +62,10 @@ export default async function ProyectoDetallePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [proyecto, salidas] = await Promise.all([
+  const [proyecto, salidas, session] = await Promise.all([
     proyectoService.obtenerDetalle(id),
     salidaService.listarPorProyecto(id),
+    getSession(),
   ]);
 
   if (!proyecto) notFound();
@@ -71,6 +73,9 @@ export default async function ProyectoDetallePage({
   const proyectosSelect = [{ id: proyecto.id, titulo: proyecto.titulo }];
   const totalSalidas = salidas.reduce((a, s) => a + s.cantidad, 0);
   const bloqueado = proyecto.bloqueado;
+  const esLector = session?.user?.rol === "LECTOR";
+  // El lector no puede modificar nada; se oculta todo lo editable.
+  const soloLectura = bloqueado || esLector;
 
   // Progreso de producción: cantidad producida frente al objetivo (si existe).
   const objetivo = proyecto.cantidadProduccion;
@@ -93,7 +98,7 @@ export default async function ProyectoDetallePage({
         titulo={proyecto.titulo}
         descripcion={`Creado el ${formatearFechaLarga(proyecto.createdAt)}`}
         accion={
-          bloqueado ? undefined : (
+          soloLectura ? undefined : (
             <ProyectoFormDialog
               proyecto={proyecto}
               trigger={
@@ -231,7 +236,7 @@ export default async function ProyectoDetallePage({
             <h2 className="text-sm font-medium text-muted-foreground">
               Listado de impresiones
             </h2>
-            {!bloqueado && (
+            {!soloLectura && (
               <ImpresionFormDialog
                 proyectoId={proyecto.id}
                 trigger={
@@ -253,7 +258,7 @@ export default async function ProyectoDetallePage({
                   : "Añade la primera impresión de este proyecto."
               }
               accion={
-                bloqueado ? undefined : (
+                soloLectura ? undefined : (
                   <ImpresionFormDialog
                     proyectoId={proyecto.id}
                     trigger={
@@ -291,7 +296,7 @@ export default async function ProyectoDetallePage({
                         {formatearFecha(imp.fecha)}
                       </TableCell>
                       <TableCell>
-                        {!bloqueado && <ImpresionActions impresion={imp} />}
+                        {!soloLectura && <ImpresionActions impresion={imp} />}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -307,7 +312,7 @@ export default async function ProyectoDetallePage({
             <h2 className="text-sm font-medium text-muted-foreground">
               Salidas de este proyecto
             </h2>
-            {!bloqueado && (
+            {!soloLectura && (
               <SalidaFormDialog
                 proyectos={proyectosSelect}
                 proyectoIdFijo={proyecto.id}
@@ -330,7 +335,7 @@ export default async function ProyectoDetallePage({
                   : "Registra las unidades que salen de este proyecto."
               }
               accion={
-                bloqueado ? undefined : (
+                soloLectura ? undefined : (
                   <SalidaFormDialog
                     proyectos={proyectosSelect}
                     proyectoIdFijo={proyecto.id}
@@ -373,7 +378,7 @@ export default async function ProyectoDetallePage({
                         {formatearFecha(s.fecha)}
                       </TableCell>
                       <TableCell>
-                        {!bloqueado && (
+                        {!soloLectura && (
                           <SalidaActions
                             salida={{
                               id: s.id,
@@ -402,7 +407,7 @@ export default async function ProyectoDetallePage({
           <ProyectoNotas
             proyectoId={proyecto.id}
             notas={proyecto.notas}
-            bloqueado={bloqueado}
+            bloqueado={soloLectura}
           />
         </TabsContent>
       </Tabs>

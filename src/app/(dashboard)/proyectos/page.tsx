@@ -21,6 +21,7 @@ import {
 import { ProyectoFormDialog } from "@/components/proyectos/proyecto-form-dialog";
 import { ProyectoActions } from "@/components/proyectos/proyecto-actions";
 import { proyectoService, type OrdenProyecto } from "@/services/proyecto.service";
+import { getSession } from "@/lib/session";
 import { formatearFecha, formatearTiempo, formatearNumero } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Proyectos" };
@@ -43,11 +44,11 @@ export default async function ProyectosPage({
   const pagina = Number(params.pagina) || 1;
   const orden = (params.orden as OrdenProyecto) || "reciente";
 
-  const { items, total, totalPaginas } = await proyectoService.listar({
-    busqueda,
-    pagina,
-    orden,
-  });
+  const [{ items, total, totalPaginas }, session] = await Promise.all([
+    proyectoService.listar({ busqueda, pagina, orden }),
+    getSession(),
+  ]);
+  const esLector = session?.user?.rol === "LECTOR";
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -55,13 +56,15 @@ export default async function ProyectosPage({
         titulo="Proyectos"
         descripcion="Gestiona tus proyectos de impresión."
         accion={
-          <ProyectoFormDialog
-            trigger={
-              <Button>
-                <Plus className="h-4 w-4" /> Nuevo proyecto
-              </Button>
-            }
-          />
+          esLector ? undefined : (
+            <ProyectoFormDialog
+              trigger={
+                <Button>
+                  <Plus className="h-4 w-4" /> Nuevo proyecto
+                </Button>
+              }
+            />
+          )
         }
       />
 
@@ -83,7 +86,8 @@ export default async function ProyectosPage({
               : "Crea tu primer proyecto para empezar a registrar impresiones."
           }
           accion={
-            !busqueda && (
+            !busqueda &&
+            !esLector && (
               <ProyectoFormDialog
                 trigger={
                   <Button>
@@ -162,7 +166,7 @@ export default async function ProyectosPage({
                     {formatearFecha(p.createdAt)}
                   </TableCell>
                   <TableCell>
-                    <ProyectoActions proyecto={p} />
+                    {!esLector && <ProyectoActions proyecto={p} />}
                   </TableCell>
                 </TableRow>
               ))}

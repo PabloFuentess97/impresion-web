@@ -21,6 +21,7 @@ import { SalidaFormDialog } from "@/components/salidas/salida-form-dialog";
 import { SalidaActions } from "@/components/salidas/salida-actions";
 import { salidaService } from "@/services/salida.service";
 import { proyectoService } from "@/services/proyecto.service";
+import { getSession } from "@/lib/session";
 import { formatearFecha, formatearNumero } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Salidas" };
@@ -34,12 +35,14 @@ export default async function SalidasPage({
   const busqueda = params.q ?? "";
   const pagina = Number(params.pagina) || 1;
 
-  const [{ items, total, totalPaginas }, proyectos] = await Promise.all([
+  const [{ items, total, totalPaginas }, proyectos, session] = await Promise.all([
     salidaService.listar({ busqueda, pagina }),
     proyectoService.listarSimple(),
+    getSession(),
   ]);
 
   const hayProyectos = proyectos.length > 0;
+  const esLector = session?.user?.rol === "LECTOR";
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -47,7 +50,7 @@ export default async function SalidasPage({
         titulo="Salidas"
         descripcion="Registra las unidades que salen de cada proyecto hacia un destino."
         accion={
-          hayProyectos ? (
+          hayProyectos && !esLector ? (
             <SalidaFormDialog
               proyectos={proyectos}
               trigger={
@@ -86,7 +89,8 @@ export default async function SalidasPage({
               : "Registra la primera salida de material."
           }
           accion={
-            !busqueda && (
+            !busqueda &&
+            !esLector && (
               <SalidaFormDialog
                 proyectos={proyectos}
                 trigger={
@@ -138,16 +142,18 @@ export default async function SalidasPage({
                     {formatearFecha(s.fecha)}
                   </TableCell>
                   <TableCell>
-                    <SalidaActions
-                      salida={{
-                        id: s.id,
-                        cantidad: s.cantidad,
-                        destino: s.destino,
-                        nota: s.nota,
-                        proyectoId: s.proyectoId,
-                      }}
-                      proyectos={proyectos}
-                    />
+                    {!esLector && (
+                      <SalidaActions
+                        salida={{
+                          id: s.id,
+                          cantidad: s.cantidad,
+                          destino: s.destino,
+                          nota: s.nota,
+                          proyectoId: s.proyectoId,
+                        }}
+                        proyectos={proyectos}
+                      />
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

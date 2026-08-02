@@ -24,6 +24,22 @@ async function main() {
   });
   console.log(`✔ Administrador listo: ${admin.email}`);
 
+  // --- Usuario de solo lectura ---
+  const lectorEmail = process.env.LECTOR_EMAIL ?? "lector@impresion.com";
+  const lectorPassword = process.env.LECTOR_PASSWORD ?? "Lect@r1234!";
+  const lectorHash = await bcrypt.hash(lectorPassword, 12);
+  const lector = await prisma.usuario.upsert({
+    where: { email: lectorEmail },
+    update: {},
+    create: {
+      email: lectorEmail,
+      password: lectorHash,
+      nombre: "Lector",
+      rol: "LECTOR",
+    },
+  });
+  console.log(`✔ Usuario de solo lectura listo: ${lector.email}`);
+
   // --- Configuración global ---
   const config = await prisma.configuracion.findFirst();
   if (!config) {

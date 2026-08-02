@@ -7,7 +7,7 @@ import {
   impresionSchema,
   impresionEditSchema,
 } from "@/validators/impresion.validator";
-import { requireAuth } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types";
 
@@ -17,7 +17,7 @@ const MENSAJE_BLOQUEADO =
 /** Crea una impresión dentro de un proyecto. */
 export async function crearImpresion(input: unknown): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = impresionSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -48,7 +48,7 @@ export async function actualizarImpresion(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = impresionEditSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -79,7 +79,7 @@ export async function actualizarImpresion(
 /** Elimina una impresión. */
 export async function eliminarImpresion(id: string): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const existente = await impresionService.obtener(id);
     if (!existente) {
       return { success: false, message: "La impresión no existe." };

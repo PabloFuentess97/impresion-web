@@ -3,14 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { inventarioService } from "@/services/inventario.service";
 import { inventarioSchema } from "@/validators/inventario.validator";
-import { requireAuth } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types";
 
 /** Crea un nuevo artículo de inventario. */
 export async function crearInventario(input: unknown): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = inventarioSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -35,7 +35,7 @@ export async function actualizarInventario(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const parsed = inventarioSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -62,7 +62,7 @@ export async function actualizarInventario(
 /** Elimina un artículo de inventario. */
 export async function eliminarInventario(id: string): Promise<ActionResult> {
   try {
-    await requireAuth();
+    await requireAdmin();
     const existente = await inventarioService.obtener(id);
     if (!existente) {
       return { success: false, message: "El artículo no existe." };

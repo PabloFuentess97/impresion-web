@@ -18,6 +18,9 @@ export interface NavItem {
   icono: LucideIcon;
 }
 
+/** Rutas que puede ver el usuario de solo lectura (rol LECTOR). */
+export const HREFS_LECTOR = ["/proyectos", "/salidas"];
+
 /** Elementos de navegación principal del panel. */
 export const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icono: LayoutDashboard },
