@@ -3,8 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { recogidaService } from "@/services/recogida.service";
 import { configuracionService } from "@/services/configuracion.service";
-import { crearRecogidaSchema } from "@/validators/recogida.validator";
-import { requireAdmin } from "@/lib/session";
+import {
+  crearRecogidaSchema,
+  solicitarRecogidaSchema,
+} from "@/validators/recogida.validator";
+import { requireAuth, requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types";
 
@@ -50,6 +53,43 @@ export async function crearRecogidaPublica(
   } catch (error) {
     logger.error("Error al registrar recogida", error);
     return { success: false, message: "No se pudo registrar la recogida." };
+  }
+}
+
+/**
+ * Solicitud de recogida desde dentro de la app por un usuario autenticado
+ * (p. ej. el lector, sin escanear el QR). Queda PENDIENTE de aprobación.
+ */
+export async function solicitarRecogida(
+  input: unknown,
+): Promise<ActionResult> {
+  try {
+    await requireAuth();
+    const parsed = solicitarRecogidaSchema.safeParse(input);
+    if (!parsed.success) {
+      return {
+        success: false,
+        message: "Revisa los datos del formulario.",
+        fieldErrors: parsed.error.flatten().fieldErrors,
+      };
+    }
+
+    await recogidaService.crear({
+      nbi: parsed.data.nbi,
+      nombre: parsed.data.nombre,
+      unidades: parsed.data.unidades,
+      proyectoId: parsed.data.proyectoId,
+    });
+
+    revalidatePath("/recogidas");
+    return {
+      success: true,
+      data: undefined,
+      message: "Solicitud enviada. Queda pendiente de aprobación.",
+    };
+  } catch (error) {
+    logger.error("Error al solicitar recogida", error);
+    return { success: false, message: "No se pudo enviar la solicitud." };
   }
 }
 

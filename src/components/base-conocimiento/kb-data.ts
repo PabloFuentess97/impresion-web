@@ -45,8 +45,8 @@ export const CATEGORIAS: Categoria[] = [
           "Una plataforma para gestionar proyectos de impresión, salidas de material, inventario, tintas, incidencias y reportes desde un único panel.",
         puntos: [
           "Centraliza toda la operación de impresión en un solo lugar, en español y con modo claro/oscuro.",
-          "Cada módulo del menú lateral corresponde a un área: Proyectos, Salidas, Inventario, Tintas y papel, Incidencias, Reportes y Configuración.",
-          "El acceso es privado: solo los usuarios que han iniciado sesión pueden ver o modificar la información.",
+          "Cada módulo del menú lateral corresponde a un área: Proyectos, Salidas, Recogidas, Inventario, Tintas y papel, Incidencias, Reportes y Configuración.",
+          "El acceso es privado: solo los usuarios que han iniciado sesión pueden ver o modificar la información. Hay dos roles: administrador (control total) y solo lectura.",
         ],
         etiquetas: ["introducción", "resumen", "plataforma", "impresión"],
       },
@@ -107,6 +107,18 @@ export const CATEGORIAS: Categoria[] = [
           "Usa una contraseña robusta: es la única llave de acceso a toda la información.",
         ],
         etiquetas: ["contraseña", "administrador", "correo", "cuenta", "seguridad"],
+      },
+      {
+        id: "roles",
+        titulo: "Roles: administrador y solo lectura",
+        resumen:
+          "Hay dos tipos de acceso: administrador (control total) y solo lectura (limitado).",
+        puntos: [
+          "El administrador puede ver y gestionar todos los módulos de la aplicación.",
+          "El usuario de solo lectura solo puede ver Proyectos y Salidas, y solicitar recogidas; no puede crear, editar, eliminar ni aprobar.",
+          "El administrador gestiona el correo y la contraseña del usuario de solo lectura desde Configuración → Usuario de solo lectura.",
+        ],
+        etiquetas: ["rol", "lector", "solo lectura", "permisos", "administrador", "acceso"],
       },
       {
         id: "acceso-privado",
@@ -185,8 +197,9 @@ export const CATEGORIAS: Categoria[] = [
           "Crea una salida seleccionando el proyecto, el destino y la cantidad de unidades.",
           "Cada salida queda asociada a su proyecto para mantener la trazabilidad.",
           "Las salidas no pueden modificarse si el proyecto está bloqueado.",
+          "Las recogidas de trabajadores aprobadas se registran aquí automáticamente como una salida.",
         ],
-        etiquetas: ["salida", "material", "destino", "unidades", "envío"],
+        etiquetas: ["salida", "material", "destino", "unidades", "envío", "recogida"],
       },
       {
         id: "seguimiento-salidas",
@@ -199,6 +212,64 @@ export const CATEGORIAS: Categoria[] = [
           "Los datos de salidas se incluyen en los reportes exportables.",
         ],
         etiquetas: ["historial", "seguimiento", "trazabilidad", "listado"],
+      },
+    ],
+  },
+  {
+    id: "recogidas",
+    titulo: "Recogidas por QR",
+    descripcion:
+      "Los trabajadores registran las unidades que cogen; el administrador las aprueba.",
+    icono: "Package",
+    ilustracion: "salidas",
+    articulos: [
+      {
+        id: "que-son-recogidas",
+        titulo: "Cómo funcionan las recogidas",
+        resumen:
+          "Un trabajador registra que coge unidades de un proyecto; queda pendiente hasta que el administrador la aprueba.",
+        puntos: [
+          "El trabajador indica su NBI (identificador), su nombre, el proyecto y las unidades que coge.",
+          "Cada recogida queda en estado Pendiente: nada se descuenta automáticamente.",
+          "Al aprobarla, el administrador genera una salida del proyecto (se descuenta); al denegarla, no se descuenta nada.",
+        ],
+        etiquetas: ["recogida", "trabajador", "nbi", "pendiente", "aprobar"],
+      },
+      {
+        id: "qr-recogidas",
+        titulo: "El código QR para trabajadores",
+        resumen:
+          "Un QR con enlace secreto abre el formulario de recogida, sin necesidad de cuentas.",
+        puntos: [
+          "En Recogidas puedes generar el QR, copiar el enlace, imprimirlo y colocarlo en el taller.",
+          "Los trabajadores lo escanean y rellenan el formulario; no necesitan cuenta ni contraseña.",
+          "Si sospechas que el enlace se ha filtrado, regenera el QR: el anterior deja de funcionar al instante.",
+        ],
+        etiquetas: ["qr", "enlace", "escanear", "taller", "regenerar"],
+      },
+      {
+        id: "aprobar-recogidas",
+        titulo: "Aprobar o denegar recogidas",
+        resumen:
+          "Desde el módulo Recogidas revisas las solicitudes y decides si se descuentan.",
+        puntos: [
+          "Filtra por Pendientes para ver lo que espera tu decisión (el contador te avisa).",
+          "Aprobar registra las unidades como salida del proyecto (se descuentan) y marca la recogida como Aprobada.",
+          "Denegar la marca como Denegada sin descontar nada. Nada cambia sin tu confirmación.",
+        ],
+        etiquetas: ["aprobar", "denegar", "pendiente", "descontar", "salida"],
+      },
+      {
+        id: "solicitar-recogida",
+        titulo: "Solicitar una recogida desde la app",
+        resumen:
+          "El usuario de solo lectura, ya dentro de la app, puede solicitar recogidas sin escanear el QR.",
+        puntos: [
+          "Desde Salidas, el usuario de solo lectura pulsa \"Solicitar recogida\" y rellena NBI, nombre, proyecto y unidades.",
+          "La solicitud queda igualmente Pendiente de la aprobación del administrador.",
+          "Es la vía cómoda para quien ya tiene acceso, sin tener que usar el código QR.",
+        ],
+        etiquetas: ["solicitar", "lector", "solo lectura", "sin qr", "pendiente"],
       },
     ],
   },
@@ -362,13 +433,25 @@ export const CATEGORIAS: Categoria[] = [
         id: "copias-seguridad",
         titulo: "Copias de seguridad y restauración",
         resumen:
-          "Descarga un volcado completo de la base de datos y restáuralo cuando lo necesites.",
+          "Descarga un volcado completo de toda la aplicación y restáuralo cuando lo necesites.",
         puntos: [
-          "Descarga una copia de seguridad en formato JSON con todos los datos de la aplicación.",
-          "Guárdala en un lugar seguro; es tu respaldo ante cualquier imprevisto.",
-          "La restauración desde un archivo requiere una confirmación fuerte, ya que reemplaza los datos actuales.",
+          "La copia incluye TODA la app: proyectos, impresiones, salidas, recogidas, inventario, tintas, papel, incidencias, configuración y usuarios.",
+          "Descárgala en formato JSON y guárdala en un lugar seguro; es tu respaldo ante cualquier imprevisto.",
+          "La restauración desde un archivo requiere una confirmación fuerte, ya que reemplaza los datos actuales. Solo el administrador puede descargar o restaurar.",
         ],
-        etiquetas: ["backup", "copia", "seguridad", "restaurar", "json"],
+        etiquetas: ["backup", "copia", "seguridad", "restaurar", "json", "completa"],
+      },
+      {
+        id: "gestionar-lector",
+        titulo: "Gestionar el usuario de solo lectura",
+        resumen:
+          "Cambia el correo y la contraseña de la cuenta de solo lectura desde Configuración.",
+        puntos: [
+          "En Configuración → Usuario de solo lectura puedes actualizar su correo electrónico.",
+          "Para cambiar su contraseña, escribe una nueva; déjala en blanco si no quieres cambiarla.",
+          "Esa cuenta solo ve Proyectos y Salidas y puede solicitar recogidas, pero no modifica nada.",
+        ],
+        etiquetas: ["lector", "solo lectura", "correo", "contraseña", "gestionar"],
       },
     ],
   },

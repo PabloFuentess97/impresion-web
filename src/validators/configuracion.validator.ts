@@ -50,3 +50,18 @@ export const adminSchema = z
   );
 
 export type AdminInput = z.infer<typeof adminSchema>;
+
+/** Validación de los datos del usuario de solo lectura (los edita el admin). */
+export const lectorSchema = z.object({
+  email: z
+    .string({ required_error: "El correo es obligatorio." })
+    .trim()
+    .email("Introduce un correo electrónico válido."),
+  password: z
+    .string()
+    .min(8, "La contraseña debe tener al menos 8 caracteres.")
+    .optional()
+    .or(z.literal("")),
+});
+
+export type LectorInput = z.infer<typeof lectorSchema>;

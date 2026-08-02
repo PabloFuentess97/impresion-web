@@ -32,6 +32,7 @@ export const backupService = {
     const proyectos = await prisma.proyecto.findMany();
     const impresiones = await prisma.impresion.findMany();
     const salidas = await prisma.salida.findMany();
+    const recogidas = await prisma.recogida.findMany();
     const incidencias = await prisma.incidencia.findMany();
     const tintas = await prisma.tinta.findMany();
     const lecturasTinta = await prisma.lecturaTinta.findMany();
@@ -49,6 +50,7 @@ export const backupService = {
         proyectos,
         impresiones,
         salidas,
+        recogidas,
         incidencias,
         tintas,
         lecturasTinta,
@@ -79,6 +81,11 @@ export const backupService = {
       "createdAt",
       "updatedAt",
     ]);
+    const recogidas = conFechas(datos.recogidas as never, [
+      "fecha",
+      "createdAt",
+      "resueltoEn",
+    ]);
     const incidencias = conFechas(datos.incidencias as never, [
       "createdAt",
       "updatedAt",
@@ -106,6 +113,7 @@ export const backupService = {
         await tx.lecturaPapel.deleteMany();
         await tx.impresion.deleteMany();
         await tx.salida.deleteMany();
+        await tx.recogida.deleteMany();
         // 2) Borrar padres.
         await tx.tinta.deleteMany();
         await tx.papel.deleteMany();
@@ -134,6 +142,8 @@ export const backupService = {
           await tx.impresion.createMany({ data: impresiones as never });
         if (salidas.length)
           await tx.salida.createMany({ data: salidas as never });
+        if (recogidas.length)
+          await tx.recogida.createMany({ data: recogidas as never });
         if (lecturasTinta.length)
           await tx.lecturaTinta.createMany({ data: lecturasTinta as never });
         if (lecturasPapel.length)
@@ -147,6 +157,7 @@ export const backupService = {
       proyectos.length +
       impresiones.length +
       salidas.length +
+      recogidas.length +
       incidencias.length +
       tintas.length +
       lecturasTinta.length +

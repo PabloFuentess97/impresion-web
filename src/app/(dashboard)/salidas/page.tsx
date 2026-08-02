@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/table";
 import { SalidaFormDialog } from "@/components/salidas/salida-form-dialog";
 import { SalidaActions } from "@/components/salidas/salida-actions";
+import { SolicitarRecogidaDialog } from "@/components/recogidas/solicitar-recogida-dialog";
 import { salidaService } from "@/services/salida.service";
 import { proyectoService } from "@/services/proyecto.service";
 import { getSession } from "@/lib/session";
@@ -48,9 +49,22 @@ export default async function SalidasPage({
     <div className="space-y-6 animate-fade-in">
       <PageHeader
         titulo="Salidas"
-        descripcion="Registra las unidades que salen de cada proyecto hacia un destino."
+        descripcion={
+          esLector
+            ? "Consulta las salidas y solicita recogidas (las aprueba el administrador)."
+            : "Registra las unidades que salen de cada proyecto hacia un destino."
+        }
         accion={
-          hayProyectos && !esLector ? (
+          !hayProyectos ? undefined : esLector ? (
+            <SolicitarRecogidaDialog
+              proyectos={proyectos}
+              trigger={
+                <Button>
+                  <Plus className="h-4 w-4" /> Solicitar recogida
+                </Button>
+              }
+            />
+          ) : (
             <SalidaFormDialog
               proyectos={proyectos}
               trigger={
@@ -59,7 +73,7 @@ export default async function SalidasPage({
                 </Button>
               }
             />
-          ) : undefined
+          )
         }
       />
 

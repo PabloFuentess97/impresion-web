@@ -27,3 +27,11 @@ export const crearRecogidaSchema = z.object({
 });
 
 export type CrearRecogidaInput = z.infer<typeof crearRecogidaSchema>;
+
+/**
+ * Solicitud de recogida desde dentro de la app (usuario ya autenticado,
+ * p. ej. el lector). No lleva token porque ya hay sesión.
+ */
+export const solicitarRecogidaSchema = crearRecogidaSchema.omit({ token: true });
+
+export type SolicitarRecogidaInput = z.infer<typeof solicitarRecogidaSchema>;

@@ -5,6 +5,7 @@ import { configuracionService } from "@/services/configuracion.service";
 import {
   configuracionSchema,
   adminSchema,
+  lectorSchema,
 } from "@/validators/configuracion.validator";
 import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
@@ -75,6 +76,42 @@ export async function actualizarAdmin(input: unknown): Promise<ActionResult> {
     };
   } catch (error) {
     logger.error("Error al actualizar administrador", error);
+    return { success: false, message: "No se pudieron guardar los cambios." };
+  }
+}
+
+/** Actualiza el correo y/o la contraseña del usuario de solo lectura. */
+export async function actualizarLector(input: unknown): Promise<ActionResult> {
+  try {
+    await requireAdmin();
+    const parsed = lectorSchema.safeParse(input);
+    if (!parsed.success) {
+      return {
+        success: false,
+        message: "Revisa los datos del usuario de solo lectura.",
+        fieldErrors: parsed.error.flatten().fieldErrors,
+      };
+    }
+
+    const resultado = await configuracionService.actualizarLector(parsed.data);
+    if (!resultado.ok) {
+      return {
+        success: false,
+        message: resultado.error,
+        fieldErrors: resultado.campo
+          ? { [resultado.campo]: [resultado.error] }
+          : undefined,
+      };
+    }
+
+    revalidatePath("/configuracion");
+    return {
+      success: true,
+      data: undefined,
+      message: "Usuario de solo lectura actualizado.",
+    };
+  } catch (error) {
+    logger.error("Error al actualizar el usuario de solo lectura", error);
     return { success: false, message: "No se pudieron guardar los cambios." };
   }
 }

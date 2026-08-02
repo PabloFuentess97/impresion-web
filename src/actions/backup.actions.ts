@@ -12,6 +12,7 @@ const TABLAS = [
   "proyectos",
   "impresiones",
   "salidas",
+  "recogidas",
   "incidencias",
   "tintas",
   "lecturasTinta",
