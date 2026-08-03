@@ -31,6 +31,7 @@ export const authConfig = {
         "/proyectos",
         "/salidas",
         "/recogidas",
+        "/mapa",
         "/inventario",
         "/tintas",
         "/incidencias",

@@ -39,6 +39,9 @@ export const backupService = {
     const papel = await prisma.papel.findMany();
     const lecturasPapel = await prisma.lecturaPapel.findMany();
     const inventario = await prisma.inventario.findMany();
+    const estanciasMapa = await prisma.estanciaMapa.findMany();
+    const zonasMapa = await prisma.zonaMapa.findMany();
+    const ubicacionesImpresion = await prisma.ubicacionImpresion.findMany();
     const configuracion = await prisma.configuracion.findMany();
 
     return {
@@ -57,6 +60,9 @@ export const backupService = {
         papel,
         lecturasPapel,
         inventario,
+        estanciasMapa,
+        zonasMapa,
+        ubicacionesImpresion,
         configuracion,
       },
     };
@@ -104,6 +110,18 @@ export const backupService = {
       "createdAt",
       "updatedAt",
     ]);
+    const estanciasMapa = conFechas(datos.estanciasMapa as never, [
+      "createdAt",
+      "updatedAt",
+    ]);
+    const zonasMapa = conFechas(datos.zonasMapa as never, [
+      "createdAt",
+      "updatedAt",
+    ]);
+    const ubicacionesImpresion = conFechas(
+      datos.ubicacionesImpresion as never,
+      ["createdAt", "updatedAt"],
+    );
     const configuracion = conFechas(datos.configuracion as never, ["updatedAt"]);
 
     await prisma.$transaction(
@@ -111,10 +129,13 @@ export const backupService = {
         // 1) Borrar hijos primero (respetando claves foráneas).
         await tx.lecturaTinta.deleteMany();
         await tx.lecturaPapel.deleteMany();
+        await tx.ubicacionImpresion.deleteMany();
         await tx.impresion.deleteMany();
         await tx.salida.deleteMany();
         await tx.recogida.deleteMany();
+        await tx.zonaMapa.deleteMany();
         // 2) Borrar padres.
+        await tx.estanciaMapa.deleteMany();
         await tx.tinta.deleteMany();
         await tx.papel.deleteMany();
         await tx.proyecto.deleteMany();
@@ -134,16 +155,24 @@ export const backupService = {
           await tx.inventario.createMany({ data: inventario as never });
         if (proyectos.length)
           await tx.proyecto.createMany({ data: proyectos as never });
+        if (estanciasMapa.length)
+          await tx.estanciaMapa.createMany({ data: estanciasMapa as never });
         if (tintas.length) await tx.tinta.createMany({ data: tintas as never });
         if (papel.length) await tx.papel.createMany({ data: papel as never });
 
         // 4) Recrear hijos.
         if (impresiones.length)
           await tx.impresion.createMany({ data: impresiones as never });
+        if (zonasMapa.length)
+          await tx.zonaMapa.createMany({ data: zonasMapa as never });
         if (salidas.length)
           await tx.salida.createMany({ data: salidas as never });
         if (recogidas.length)
           await tx.recogida.createMany({ data: recogidas as never });
+        if (ubicacionesImpresion.length)
+          await tx.ubicacionImpresion.createMany({
+            data: ubicacionesImpresion as never,
+          });
         if (lecturasTinta.length)
           await tx.lecturaTinta.createMany({ data: lecturasTinta as never });
         if (lecturasPapel.length)
@@ -164,6 +193,9 @@ export const backupService = {
       papel.length +
       lecturasPapel.length +
       inventario.length +
+      estanciasMapa.length +
+      zonasMapa.length +
+      ubicacionesImpresion.length +
       configuracion.length
     );
   },

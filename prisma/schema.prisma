@@ -85,10 +85,70 @@ model Impresion {
 
   proyectoId String
   proyecto   Proyecto @relation(fields: [proyectoId], references: [id], onDelete: Cascade)
+  ubicaciones UbicacionImpresion[]
 
   @@index([proyectoId])
   @@index([fecha])
   @@map("impresiones")
+}
+
+/// Estancia o plano visual donde se dibujan zonas de almacenaje.
+model EstanciaMapa {
+  id        String   @id @default(cuid())
+  nombre    String
+  descripcion String?
+  /// Dimensiones lógicas del lienzo visual.
+  ancho     Int      @default(1200)
+  alto      Int      @default(800)
+  orden     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  zonas     ZonaMapa[]
+
+  @@index([orden])
+  @@map("estancias_mapa")
+}
+
+/// Zona dibujada dentro de una estancia (almacenaje, mesa, estantería, etc.).
+model ZonaMapa {
+  id          String   @id @default(cuid())
+  nombre      String
+  descripcion String?
+  /// Coordenadas y tamaño en porcentaje (0-100) para ser responsive.
+  x           Float
+  y           Float
+  ancho       Float
+  alto        Float
+  color       String   @default("#6366F1")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  estanciaId  String
+  estancia    EstanciaMapa @relation(fields: [estanciaId], references: [id], onDelete: Cascade)
+  ubicaciones UbicacionImpresion[]
+
+  @@index([estanciaId])
+  @@map("zonas_mapa")
+}
+
+/// Asignación opcional de una impresión a una zona del mapa.
+model UbicacionImpresion {
+  id          String   @id @default(cuid())
+  cantidad    Int?
+  nota        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  impresionId String
+  impresion   Impresion @relation(fields: [impresionId], references: [id], onDelete: Cascade)
+  zonaId      String
+  zona        ZonaMapa  @relation(fields: [zonaId], references: [id], onDelete: Cascade)
+
+  @@index([impresionId])
+  @@index([zonaId])
+  @@unique([impresionId, zonaId])
+  @@map("ubicaciones_impresion")
 }
 
 /// Salida de material: unidades/etiquetas de un proyecto enviadas a un destino.

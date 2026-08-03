@@ -45,7 +45,7 @@ export const CATEGORIAS: Categoria[] = [
           "Una plataforma para gestionar proyectos de impresión, salidas de material, inventario, tintas, incidencias y reportes desde un único panel.",
         puntos: [
           "Centraliza toda la operación de impresión en un solo lugar, en español y con modo claro/oscuro.",
-          "Cada módulo del menú lateral corresponde a un área: Proyectos, Salidas, Recogidas, Inventario, Tintas y papel, Incidencias, Reportes y Configuración.",
+          "Cada módulo del menú lateral corresponde a un área: Proyectos, Salidas, Recogidas, Mapa visual, Inventario, Tintas y papel, Incidencias, Reportes y Configuración.",
           "El acceso es privado: solo los usuarios que han iniciado sesión pueden ver o modificar la información. Hay dos roles: administrador (control total) y solo lectura.",
         ],
         etiquetas: ["introducción", "resumen", "plataforma", "impresión"],
@@ -270,6 +270,52 @@ export const CATEGORIAS: Categoria[] = [
           "Es la vía cómoda para quien ya tiene acceso, sin tener que usar el código QR.",
         ],
         etiquetas: ["solicitar", "lector", "solo lectura", "sin qr", "pendiente"],
+      },
+    ],
+  },
+  {
+    id: "mapa-visual",
+    titulo: "Mapa visual",
+    descripcion:
+      "Diseña estancias, dibuja zonas de almacenaje y ubica impresiones de proyectos.",
+    icono: "Map",
+    ilustracion: "inventario",
+    articulos: [
+      {
+        id: "crear-estancias",
+        titulo: "Crear estancias del taller",
+        resumen:
+          "Una estancia representa una sala o zona física: Sala impresión, Almacén, Expediciones, etc.",
+        puntos: [
+          "Desde Mapa visual pulsa Nueva estancia para crear cada sala o almacén que quieras representar.",
+          "El nombre y la descripción ayudan a diferenciar espacios cuando hay más de una estancia.",
+          "Puedes editar o eliminar una estancia; al eliminarla también se eliminan sus zonas y ubicaciones asociadas.",
+        ],
+        etiquetas: ["mapa", "estancia", "sala", "almacén", "zona física"],
+      },
+      {
+        id: "dibujar-zonas",
+        titulo: "Dibujar y modificar zonas",
+        resumen:
+          "Cada zona es un área de almacenaje dentro de una estancia.",
+        puntos: [
+          "Activa Dibujar zona y arrastra sobre el lienzo para crear un área nueva.",
+          "Después puedes cambiar su nombre, color, descripción y tamaño desde el formulario de edición.",
+          "Las zonas se pueden mover arrastrándolas y redimensionar desde la esquina inferior derecha.",
+        ],
+        etiquetas: ["zona", "dibujar", "lienzo", "canvas", "almacenaje"],
+      },
+      {
+        id: "ubicar-impresiones",
+        titulo: "Ubicar impresiones",
+        resumen:
+          "Asigna impresiones de proyectos a zonas para saber dónde está cada lote.",
+        puntos: [
+          "En cada tarjeta de zona pulsa Asignar impresión y selecciona la impresión del proyecto.",
+          "La cantidad es opcional: puedes ubicar el lote completo o indicar solo una parte concreta.",
+          "Ubicar impresiones no es obligatorio, pero el panel muestra cuántas quedan sin ubicación para mantener el control.",
+        ],
+        etiquetas: ["ubicación", "impresión", "lote", "cantidad", "trazabilidad"],
       },
     ],
   },

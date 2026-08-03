@@ -2,8 +2,11 @@ import type {
   Proyecto,
   Impresion,
   Incidencia,
+  EstanciaMapa,
   Inventario,
   Recogida,
+  UbicacionImpresion,
+  ZonaMapa,
   EstadoIncidencia,
   EstadoRecogida,
 } from "@prisma/client";
@@ -79,8 +82,11 @@ export type {
   Proyecto,
   Impresion,
   Incidencia,
+  EstanciaMapa,
   Inventario,
   Recogida,
+  UbicacionImpresion,
+  ZonaMapa,
   EstadoIncidencia,
   EstadoRecogida,
 };

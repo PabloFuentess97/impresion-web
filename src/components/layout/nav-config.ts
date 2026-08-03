@@ -8,6 +8,7 @@ import {
   PackageCheck,
   FileBarChart,
   BookOpen,
+  Map,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -27,6 +28,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Proyectos", href: "/proyectos", icono: FolderKanban },
   { label: "Salidas", href: "/salidas", icono: Truck },
   { label: "Recogidas", href: "/recogidas", icono: PackageCheck },
+  { label: "Mapa visual", href: "/mapa", icono: Map },
   { label: "Inventario", href: "/inventario", icono: Package },
   { label: "Tintas y papel", href: "/tintas", icono: Droplets },
   { label: "Incidencias", href: "/incidencias", icono: AlertTriangle },
