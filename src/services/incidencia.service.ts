@@ -1,6 +1,6 @@
 import type { EstadoIncidencia, Prisma } from "@prisma/client";
 import { incidenciaRepository } from "@/repositories/incidencia.repository";
-import { PAGINA_TAMANO } from "@/lib/constants";
+import { normalizarTamanoPagina } from "@/lib/constants";
 import type { Incidencia, Paginado } from "@/types";
 import type { IncidenciaInput } from "@/validators/incidencia.validator";
 import { sanitizarHtml } from "@/lib/sanitize";
@@ -13,8 +13,10 @@ export const incidenciaService = {
     busqueda?: string;
     estado?: EstadoIncidencia | "TODAS";
     pagina?: number;
+    tamano?: number;
   }): Promise<Paginado<Incidencia>> {
     const pagina = Math.max(1, opciones.pagina ?? 1);
+    const tamano = normalizarTamanoPagina(opciones.tamano);
     const busqueda = opciones.busqueda?.trim();
 
     const where: Prisma.IncidenciaWhereInput = {
@@ -30,8 +32,8 @@ export const incidenciaService = {
       incidenciaRepository.contar(where),
       incidenciaRepository.listar({
         where,
-        skip: (pagina - 1) * PAGINA_TAMANO,
-        take: PAGINA_TAMANO,
+        skip: (pagina - 1) * tamano,
+        take: tamano,
       }),
     ]);
 
@@ -39,8 +41,8 @@ export const incidenciaService = {
       items,
       total,
       pagina,
-      totalPaginas: Math.max(1, Math.ceil(total / PAGINA_TAMANO)),
-      tamano: PAGINA_TAMANO,
+      totalPaginas: Math.max(1, Math.ceil(total / tamano)),
+      tamano,
     };
   },
 

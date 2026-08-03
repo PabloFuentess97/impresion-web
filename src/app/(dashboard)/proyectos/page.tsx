@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { normalizarTamanoPagina } from "@/lib/constants";
 import Link from "next/link";
 import { Plus, FolderKanban, Layers, Clock, Lock } from "lucide-react";
 
@@ -37,15 +38,16 @@ const OPCIONES_ORDEN = [
 export default async function ProyectosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; pagina?: string; orden?: string }>;
+  searchParams: Promise<{ q?: string; pagina?: string; tamano?: string; orden?: string }>;
 }) {
   const params = await searchParams;
   const busqueda = params.q ?? "";
   const pagina = Number(params.pagina) || 1;
+  const tamano = normalizarTamanoPagina(params.tamano);
   const orden = (params.orden as OrdenProyecto) || "reciente";
 
   const [{ items, total, totalPaginas }, session] = await Promise.all([
-    proyectoService.listar({ busqueda, pagina, orden }),
+    proyectoService.listar({ busqueda, pagina, orden, tamano }),
     getSession(),
   ]);
   const esLector = session?.user?.rol === "LECTOR";
@@ -176,7 +178,7 @@ export default async function ProyectosPage({
       )}
 
       {items.length > 0 && (
-        <Pagination pagina={pagina} totalPaginas={totalPaginas} total={total} />
+        <Pagination pagina={pagina} totalPaginas={totalPaginas} total={total} tamano={tamano} />
       )}
     </div>
   );

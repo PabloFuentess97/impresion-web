@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { normalizarTamanoPagina } from "@/lib/constants";
 import Link from "next/link";
 import { headers } from "next/headers";
 import QRCode from "qrcode";
@@ -51,7 +52,7 @@ const ESTADO_LABEL: Record<EstadoRecogida, string> = {
 export default async function RecogidasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ estado?: string; pagina?: string }>;
+  searchParams: Promise<{ estado?: string; pagina?: string; tamano?: string }>;
 }) {
   const params = await searchParams;
   const estado = (
@@ -60,9 +61,10 @@ export default async function RecogidasPage({
       : "PENDIENTE"
   ) as FiltroEstadoRecogida;
   const pagina = Number(params.pagina) || 1;
+  const tamano = normalizarTamanoPagina(params.tamano);
 
   const [{ items, total, totalPaginas }, config, pendientes] = await Promise.all([
-    recogidaService.listar({ estado, pagina }),
+    recogidaService.listar({ estado, pagina, tamano }),
     configuracionService.obtener(),
     recogidaService.contarPendientes(),
   ]);
@@ -183,7 +185,7 @@ export default async function RecogidasPage({
 
       {items.length > 0 && (
         <div className="flex justify-center">
-          <Pagination pagina={pagina} totalPaginas={totalPaginas} total={total} />
+          <Pagination pagina={pagina} totalPaginas={totalPaginas} total={total} tamano={tamano} />
         </div>
       )}
     </div>

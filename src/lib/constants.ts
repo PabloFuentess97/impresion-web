@@ -6,6 +6,19 @@ export const APP_NOMBRE = "ImpresiónWeb";
 /** Tamaño de página por defecto para los listados paginados. */
 export const PAGINA_TAMANO = 10;
 
+/** Opciones permitidas para configurar cuántos resultados se muestran. */
+export const OPCIONES_TAMANO_PAGINA = [10, 25, 50, 100] as const;
+
+export type TamanoPagina = (typeof OPCIONES_TAMANO_PAGINA)[number];
+
+/** Normaliza el tamaño de página recibido por URL o servicio. */
+export function normalizarTamanoPagina(valor?: number | string | null): TamanoPagina {
+  const numero = Number(valor);
+  return OPCIONES_TAMANO_PAGINA.includes(numero as TamanoPagina)
+    ? (numero as TamanoPagina)
+    : PAGINA_TAMANO;
+}
+
 /** Etiquetas legibles para los estados de incidencia. */
 export const ESTADOS_INCIDENCIA: Record<
   EstadoIncidencia,

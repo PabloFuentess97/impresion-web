@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { normalizarTamanoPagina } from "@/lib/constants";
 import { notFound } from "next/navigation";
 import {
   Plus,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
+import { Pagination } from "@/components/shared/pagination";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { StatCard } from "@/components/dashboard/stat-card";
@@ -58,10 +60,19 @@ export async function generateMetadata({
 
 export default async function ProyectoDetallePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{
+    tab?: string;
+    impresionesPagina?: string;
+    impresionesTamano?: string;
+    salidasPagina?: string;
+    salidasTamano?: string;
+  }>;
 }) {
   const { id } = await params;
+  const query = await searchParams;
   const [proyecto, salidas, session] = await Promise.all([
     proyectoService.obtenerDetalle(id),
     salidaService.listarPorProyecto(id),
@@ -72,6 +83,24 @@ export default async function ProyectoDetallePage({
 
   const proyectosSelect = [{ id: proyecto.id, titulo: proyecto.titulo }];
   const totalSalidas = salidas.reduce((a, s) => a + s.cantidad, 0);
+  const tabInicial = query.tab === "salidas" || query.tab === "notas" ? query.tab : "impresiones";
+  const impresionesPagina = Number(query.impresionesPagina) || 1;
+  const impresionesTamano = normalizarTamanoPagina(query.impresionesTamano);
+  const salidasPagina = Number(query.salidasPagina) || 1;
+  const salidasTamano = normalizarTamanoPagina(query.salidasTamano);
+  const totalPaginasImpresiones = Math.max(
+    1,
+    Math.ceil(proyecto.impresiones.length / impresionesTamano),
+  );
+  const totalPaginasSalidas = Math.max(1, Math.ceil(salidas.length / salidasTamano));
+  const impresionesPaginadas = proyecto.impresiones.slice(
+    (impresionesPagina - 1) * impresionesTamano,
+    impresionesPagina * impresionesTamano,
+  );
+  const salidasPaginadas = salidas.slice(
+    (salidasPagina - 1) * salidasTamano,
+    salidasPagina * salidasTamano,
+  );
   const bloqueado = proyecto.bloqueado;
   const esLector = session?.user?.rol === "LECTOR";
   // El lector no puede modificar nada; se oculta todo lo editable.
@@ -219,7 +248,7 @@ export default async function ProyectoDetallePage({
       </div>
 
       {/* Pestañas: Impresiones / Salidas */}
-      <Tabs defaultValue="impresiones" className="w-full">
+      <Tabs defaultValue={tabInicial} className="w-full">
         <TabsList>
           <TabsTrigger value="impresiones">
             Impresiones ({proyecto.totalImpresiones})
@@ -283,7 +312,7 @@ export default async function ProyectoDetallePage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {proyecto.impresiones.map((imp) => (
+                  {impresionesPaginadas.map((imp) => (
                     <TableRow key={imp.id}>
                       <TableCell className="font-medium">{imp.nombre}</TableCell>
                       <TableCell className="text-center">
@@ -303,6 +332,18 @@ export default async function ProyectoDetallePage({
                 </TableBody>
               </Table>
             </Card>
+          )}
+
+          {proyecto.impresiones.length > 0 && (
+            <Pagination
+              pagina={impresionesPagina}
+              totalPaginas={totalPaginasImpresiones}
+              total={proyecto.impresiones.length}
+              tamano={impresionesTamano}
+              pageParam="impresionesPagina"
+              sizeParam="impresionesTamano"
+              extraParams={{ tab: "impresiones" }}
+            />
           )}
         </TabsContent>
 
@@ -361,7 +402,7 @@ export default async function ProyectoDetallePage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {salidas.map((s) => (
+                  {salidasPaginadas.map((s) => (
                     <TableRow key={s.id}>
                       <TableCell className="font-medium">{s.destino}</TableCell>
                       <TableCell className="text-center">
@@ -396,6 +437,18 @@ export default async function ProyectoDetallePage({
                 </TableBody>
               </Table>
             </Card>
+          )}
+
+          {salidas.length > 0 && (
+            <Pagination
+              pagina={salidasPagina}
+              totalPaginas={totalPaginasSalidas}
+              total={salidas.length}
+              tamano={salidasTamano}
+              pageParam="salidasPagina"
+              sizeParam="salidasTamano"
+              extraParams={{ tab: "salidas" }}
+            />
           )}
         </TabsContent>
 

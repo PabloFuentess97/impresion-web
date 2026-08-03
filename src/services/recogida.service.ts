@@ -1,7 +1,7 @@
 import type { Prisma } from "@prisma/client";
 import { recogidaRepository } from "@/repositories/recogida.repository";
 import { salidaService } from "@/services/salida.service";
-import { PAGINA_TAMANO } from "@/lib/constants";
+import { normalizarTamanoPagina } from "@/lib/constants";
 import type { Paginado, RecogidaConProyecto } from "@/types";
 
 export type FiltroEstadoRecogida = "PENDIENTE" | "APROBADA" | "DENEGADA" | "todas";
@@ -14,8 +14,10 @@ export const recogidaService = {
   async listar(opciones: {
     estado?: FiltroEstadoRecogida;
     pagina?: number;
+    tamano?: number;
   }): Promise<Paginado<RecogidaConProyecto>> {
     const pagina = Math.max(1, opciones.pagina ?? 1);
+    const tamano = normalizarTamanoPagina(opciones.tamano);
     const where: Prisma.RecogidaWhereInput =
       opciones.estado && opciones.estado !== "todas"
         ? { estado: opciones.estado }
@@ -25,8 +27,8 @@ export const recogidaService = {
       recogidaRepository.contar(where),
       recogidaRepository.listar({
         where,
-        skip: (pagina - 1) * PAGINA_TAMANO,
-        take: PAGINA_TAMANO,
+        skip: (pagina - 1) * tamano,
+        take: tamano,
       }),
     ]);
 
@@ -34,8 +36,8 @@ export const recogidaService = {
       items: registros as RecogidaConProyecto[],
       total,
       pagina,
-      totalPaginas: Math.max(1, Math.ceil(total / PAGINA_TAMANO)),
-      tamano: PAGINA_TAMANO,
+      totalPaginas: Math.max(1, Math.ceil(total / tamano)),
+      tamano,
     };
   },
 

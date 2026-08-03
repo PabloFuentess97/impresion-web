@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { normalizarTamanoPagina } from "@/lib/constants";
 import { Droplets, Plus, Scroll } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
+import { Pagination } from "@/components/shared/pagination";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -15,11 +17,23 @@ import { papelService } from "@/services/papel.service";
 
 export const metadata: Metadata = { title: "Tintas y papel" };
 
-export default async function TintasPage() {
+export default async function TintasPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ papelPagina?: string; papelTamano?: string }>;
+}) {
+  const params = await searchParams;
   const [tintas, papeles] = await Promise.all([
     tintaService.listar(),
     papelService.listar(),
   ]);
+  const papelPagina = Number(params.papelPagina) || 1;
+  const papelTamano = normalizarTamanoPagina(params.papelTamano);
+  const papelTotalPaginas = Math.max(1, Math.ceil(papeles.length / papelTamano));
+  const papelesPaginados = papeles.slice(
+    (papelPagina - 1) * papelTamano,
+    papelPagina * papelTamano,
+  );
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -89,10 +103,21 @@ export default async function TintasPage() {
           />
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {papeles.map((p) => (
+            {papelesPaginados.map((p) => (
               <PapelCard key={p.id} papel={p} />
             ))}
           </div>
+        )}
+
+        {papeles.length > 0 && (
+          <Pagination
+            pagina={papelPagina}
+            totalPaginas={papelTotalPaginas}
+            total={papeles.length}
+            tamano={papelTamano}
+            pageParam="papelPagina"
+            sizeParam="papelTamano"
+          />
         )}
       </section>
     </div>

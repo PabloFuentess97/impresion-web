@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { normalizarTamanoPagina } from "@/lib/constants";
 import Link from "next/link";
 import { Plus, Truck, Package } from "lucide-react";
 
@@ -30,14 +31,15 @@ export const metadata: Metadata = { title: "Salidas" };
 export default async function SalidasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; pagina?: string }>;
+  searchParams: Promise<{ q?: string; pagina?: string; tamano?: string }>;
 }) {
   const params = await searchParams;
   const busqueda = params.q ?? "";
   const pagina = Number(params.pagina) || 1;
+  const tamano = normalizarTamanoPagina(params.tamano);
 
   const [{ items, total, totalPaginas }, proyectos, session] = await Promise.all([
-    salidaService.listar({ busqueda, pagina }),
+    salidaService.listar({ busqueda, pagina, tamano }),
     proyectoService.listarSimple(),
     getSession(),
   ]);
@@ -177,7 +179,7 @@ export default async function SalidasPage({
       )}
 
       {items.length > 0 && (
-        <Pagination pagina={pagina} totalPaginas={totalPaginas} total={total} />
+        <Pagination pagina={pagina} totalPaginas={totalPaginas} total={total} tamano={tamano} />
       )}
     </div>
   );

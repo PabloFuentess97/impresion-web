@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { normalizarTamanoPagina } from "@/lib/constants";
 import { Plus, AlertTriangle, CalendarDays } from "lucide-react";
 import type { EstadoIncidencia } from "@prisma/client";
 
@@ -22,17 +23,19 @@ export const metadata: Metadata = { title: "Incidencias" };
 export default async function IncidenciasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; pagina?: string; estado?: string }>;
+  searchParams: Promise<{ q?: string; pagina?: string; tamano?: string; estado?: string }>;
 }) {
   const params = await searchParams;
   const busqueda = params.q ?? "";
   const pagina = Number(params.pagina) || 1;
+  const tamano = normalizarTamanoPagina(params.tamano);
   const estado = (params.estado as EstadoIncidencia | "TODAS") || "TODAS";
 
   const { items, total, totalPaginas } = await incidenciaService.listar({
     busqueda,
     estado,
     pagina,
+    tamano,
   });
 
   return (
@@ -119,7 +122,7 @@ export default async function IncidenciasPage({
       )}
 
       {items.length > 0 && (
-        <Pagination pagina={pagina} totalPaginas={totalPaginas} total={total} />
+        <Pagination pagina={pagina} totalPaginas={totalPaginas} total={total} tamano={tamano} />
       )}
     </div>
   );

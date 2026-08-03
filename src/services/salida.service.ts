@@ -1,6 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import { salidaRepository } from "@/repositories/salida.repository";
-import { PAGINA_TAMANO } from "@/lib/constants";
+import { normalizarTamanoPagina } from "@/lib/constants";
 import type { Paginado } from "@/types";
 import type { SalidaInput } from "@/validators/salida.validator";
 
@@ -22,8 +22,10 @@ export const salidaService = {
     busqueda?: string;
     proyectoId?: string;
     pagina?: number;
+    tamano?: number;
   }): Promise<Paginado<SalidaConProyecto>> {
     const pagina = Math.max(1, opciones.pagina ?? 1);
+    const tamano = normalizarTamanoPagina(opciones.tamano);
     const busqueda = opciones.busqueda?.trim();
 
     const where: Prisma.SalidaWhereInput = {
@@ -42,8 +44,8 @@ export const salidaService = {
       salidaRepository.contar(where),
       salidaRepository.listar({
         where,
-        skip: (pagina - 1) * PAGINA_TAMANO,
-        take: PAGINA_TAMANO,
+        skip: (pagina - 1) * tamano,
+        take: tamano,
       }),
     ]);
 
@@ -51,8 +53,8 @@ export const salidaService = {
       items: registros as SalidaConProyecto[],
       total,
       pagina,
-      totalPaginas: Math.max(1, Math.ceil(total / PAGINA_TAMANO)),
-      tamano: PAGINA_TAMANO,
+      totalPaginas: Math.max(1, Math.ceil(total / tamano)),
+      tamano,
     };
   },
 

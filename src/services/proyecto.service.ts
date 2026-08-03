@@ -1,7 +1,7 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { proyectoRepository } from "@/repositories/proyecto.repository";
-import { PAGINA_TAMANO } from "@/lib/constants";
+import { normalizarTamanoPagina } from "@/lib/constants";
 import { sanitizarHtml } from "@/lib/sanitize";
 import type {
   Paginado,
@@ -26,9 +26,11 @@ export const proyectoService = {
   async listar(opciones: {
     busqueda?: string;
     pagina?: number;
+    tamano?: number;
     orden?: OrdenProyecto;
   }): Promise<Paginado<ProyectoConMetricas>> {
     const pagina = Math.max(1, opciones.pagina ?? 1);
+    const tamano = normalizarTamanoPagina(opciones.tamano);
     const busqueda = opciones.busqueda?.trim();
 
     const where: Prisma.ProyectoWhereInput = busqueda
@@ -59,8 +61,8 @@ export const proyectoService = {
     const registros = await proyectoRepository.listar({
       where,
       orderBy: ordenBd,
-      skip: ordenPorMetrica ? undefined : (pagina - 1) * PAGINA_TAMANO,
-      take: ordenPorMetrica ? undefined : PAGINA_TAMANO,
+      skip: ordenPorMetrica ? undefined : (pagina - 1) * tamano,
+      take: ordenPorMetrica ? undefined : tamano,
     });
 
     let items: ProyectoConMetricas[] = registros.map((p) =>
@@ -73,15 +75,15 @@ export const proyectoService = {
           ? b.totalImpresiones - a.totalImpresiones
           : b.tiempoTotal - a.tiempoTotal,
       );
-      items = items.slice((pagina - 1) * PAGINA_TAMANO, pagina * PAGINA_TAMANO);
+      items = items.slice((pagina - 1) * tamano, pagina * tamano);
     }
 
     return {
       items,
       total,
       pagina,
-      totalPaginas: Math.max(1, Math.ceil(total / PAGINA_TAMANO)),
-      tamano: PAGINA_TAMANO,
+      totalPaginas: Math.max(1, Math.ceil(total / tamano)),
+      tamano,
     };
   },
 

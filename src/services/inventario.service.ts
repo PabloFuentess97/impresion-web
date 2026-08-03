@@ -1,6 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import { inventarioRepository } from "@/repositories/inventario.repository";
-import { PAGINA_TAMANO } from "@/lib/constants";
+import { normalizarTamanoPagina } from "@/lib/constants";
 import type { Inventario, Paginado } from "@/types";
 import type { InventarioInput } from "@/validators/inventario.validator";
 
@@ -13,9 +13,11 @@ export const inventarioService = {
   async listar(opciones: {
     busqueda?: string;
     pagina?: number;
+    tamano?: number;
     orden?: OrdenInventario;
   }): Promise<Paginado<Inventario>> {
     const pagina = Math.max(1, opciones.pagina ?? 1);
+    const tamano = normalizarTamanoPagina(opciones.tamano);
     const busqueda = opciones.busqueda?.trim();
 
     const where: Prisma.InventarioWhereInput = busqueda
@@ -35,16 +37,16 @@ export const inventarioService = {
     const items = await inventarioRepository.listar({
       where,
       orderBy,
-      skip: (pagina - 1) * PAGINA_TAMANO,
-      take: PAGINA_TAMANO,
+      skip: (pagina - 1) * tamano,
+      take: tamano,
     });
 
     return {
       items,
       total,
       pagina,
-      totalPaginas: Math.max(1, Math.ceil(total / PAGINA_TAMANO)),
-      tamano: PAGINA_TAMANO,
+      totalPaginas: Math.max(1, Math.ceil(total / tamano)),
+      tamano,
     };
   },
 
