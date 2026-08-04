@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { EstadoBadge } from "./estado-badge";
 import { formatearFechaLarga } from "@/lib/format";
+import { sanitizarHtml } from "@/lib/sanitize";
 import type { Incidencia } from "@/types";
 
 /** Diálogo de solo lectura para ver la incidencia completa. */
@@ -37,7 +38,7 @@ export function IncidenciaViewDialog({
         </DialogHeader>
         <div
           className="prosa mt-2 text-sm text-foreground"
-          dangerouslySetInnerHTML={{ __html: incidencia.descripcion }}
+          dangerouslySetInnerHTML={{ __html: sanitizarHtml(incidencia.descripcion) }}
         />
       </DialogContent>
     </Dialog>

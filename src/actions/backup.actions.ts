@@ -1,7 +1,9 @@
 "use server";
 
+import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { backupService } from "@/services/backup.service";
+import { usuarioRepository } from "@/repositories/usuario.repository";
 import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import type { ActionResult } from "@/types";
@@ -19,7 +21,11 @@ const TABLAS = [
   "papel",
   "lecturasPapel",
   "inventario",
+  "estanciasMapa",
+  "zonasMapa",
+  "ubicacionesImpresion",
   "configuracion",
+  "modulosConfiguracion",
 ];
 
 /**
@@ -30,9 +36,42 @@ export async function restaurarBackup(
   payload: unknown,
 ): Promise<ActionResult<{ total: number }>> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
 
-    const datos = (payload as { datos?: unknown } | null)?.datos;
+    const entrada = payload as {
+      backup?: { datos?: unknown } | null;
+      confirmacion?: unknown;
+      passwordActual?: unknown;
+    } | null;
+
+    if (entrada?.confirmacion !== "RESTAURAR") {
+      return {
+        success: false,
+        message: "Confirmación no válida.",
+      };
+    }
+
+    if (
+      typeof entrada.passwordActual !== "string" ||
+      entrada.passwordActual.length === 0
+    ) {
+      return {
+        success: false,
+        message: "Introduce tu contraseña actual para restaurar.",
+      };
+    }
+
+    const usuario = await usuarioRepository.obtener(session.user.id);
+    const passwordValida =
+      usuario && (await bcrypt.compare(entrada.passwordActual, usuario.password));
+    if (!passwordValida) {
+      return {
+        success: false,
+        message: "La contraseña actual no es correcta.",
+      };
+    }
+
+    const datos = entrada?.backup?.datos;
     if (!datos || typeof datos !== "object" || Array.isArray(datos)) {
       return {
         success: false,

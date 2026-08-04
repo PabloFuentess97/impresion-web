@@ -107,14 +107,16 @@ npm run db:deploy
 npm run db:push
 ```
 
-### 5. Cargar datos iniciales (usuario admin + ejemplos)
+### 5. Cargar datos iniciales
 
 ```bash
 npm run db:seed
 ```
 
-Esto crea el administrador con las credenciales de `.env`
-(`ADMIN_EMAIL` / `ADMIN_PASSWORD`).
+El seed exige `ADMIN_EMAIL` y `ADMIN_PASSWORD`. No existen credenciales por
+defecto y la contraseña nunca se imprime en consola.
+
+Los datos de ejemplo solo se crean si defines `SEED_DEMO_DATA=true`.
 
 ### 6. Arrancar en desarrollo
 
@@ -122,11 +124,8 @@ Esto crea el administrador con las credenciales de `.env`
 npm run dev
 ```
 
-Abre <http://localhost:3000> e inicia sesión con las credenciales del seed.
-
-**Credenciales por defecto:**
-- Email: `admin@impresionweb.com`
-- Contraseña: `Admin1234!`
+Abre <http://localhost:3000> e inicia sesión con las credenciales que hayas
+definido para el seed.
 
 ---
 

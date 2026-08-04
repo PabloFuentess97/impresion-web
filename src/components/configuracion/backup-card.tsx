@@ -41,6 +41,7 @@ export function BackupCard() {
   const [seleccion, setSeleccion] = React.useState<BackupParseado | null>(null);
   const [dialogo, setDialogo] = React.useState(false);
   const [texto, setTexto] = React.useState("");
+  const [passwordActual, setPasswordActual] = React.useState("");
   const [restaurando, setRestaurando] = React.useState(false);
 
   function abrirSelector() {
@@ -66,6 +67,7 @@ export function BackupCard() {
         payload,
       });
       setTexto("");
+      setPasswordActual("");
       setDialogo(true);
     } catch {
       toast.error("No se pudo leer el archivo (JSON no válido).");
@@ -76,11 +78,16 @@ export function BackupCard() {
     if (!seleccion) return;
     setRestaurando(true);
     try {
-      const resultado = await restaurarBackup(seleccion.payload);
+      const resultado = await restaurarBackup({
+        backup: seleccion.payload,
+        confirmacion: texto.trim().toUpperCase(),
+        passwordActual,
+      });
       if (resultado.success) {
         toast.success(resultado.message ?? "Copia restaurada.");
         setDialogo(false);
         setSeleccion(null);
+        setPasswordActual("");
         router.refresh();
       } else {
         toast.error(resultado.message);
@@ -91,7 +98,9 @@ export function BackupCard() {
   }
 
   const puedeConfirmar =
-    texto.trim().toUpperCase() === PALABRA_CONFIRMACION && !restaurando;
+    texto.trim().toUpperCase() === PALABRA_CONFIRMACION &&
+    passwordActual.length > 0 &&
+    !restaurando;
 
   return (
     <Card>
@@ -177,7 +186,19 @@ export function BackupCard() {
                 value={texto}
                 onChange={(e) => setTexto(e.target.value)}
                 autoComplete="off"
-                placeholder={PALABRA_CONFIRMACION}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password-restaurar">
+                Contraseña actual del administrador
+              </Label>
+              <Input
+                id="password-restaurar"
+                type="password"
+                value={passwordActual}
+                onChange={(e) => setPasswordActual(e.target.value)}
+                autoComplete="current-password"
               />
             </div>
           </div>

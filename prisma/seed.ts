@@ -1,55 +1,67 @@
 /**
  * Seed de la base de datos.
- * Crea el usuario administrador inicial, la configuración por defecto
- * y algunos datos de ejemplo para poder probar la aplicación.
  *
- * Ejecutar con:  npm run db:seed
+ * Uso seguro:
+ *   ADMIN_EMAIL="admin@empresa.com" ADMIN_PASSWORD="..." npm run db:seed
+ *
+ * No hay contraseñas por defecto ni se imprimen secretos en consola.
  */
 import { PrismaClient, EstadoIncidencia } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-async function main() {
-  const email = process.env.ADMIN_EMAIL ?? "admin@impresionweb.com";
-  const password = process.env.ADMIN_PASSWORD ?? "Admin1234!";
-  const nombre = process.env.ADMIN_NOMBRE ?? "Administrador";
+function leerEnvObligatoria(nombre: string): string {
+  const valor = process.env[nombre]?.trim();
+  if (!valor) {
+    throw new Error(`Falta la variable obligatoria ${nombre}.`);
+  }
+  return valor;
+}
 
-  // --- Usuario administrador ---
+async function main() {
+  const email = leerEnvObligatoria("ADMIN_EMAIL").toLowerCase();
+  const password = leerEnvObligatoria("ADMIN_PASSWORD");
+  const nombre = process.env.ADMIN_NOMBRE?.trim() || "Administrador";
+
   const passwordHash = await bcrypt.hash(password, 12);
   const admin = await prisma.usuario.upsert({
     where: { email },
     update: {},
-    create: { email, password: passwordHash, nombre },
+    create: { email, password: passwordHash, nombre, rol: "ADMIN" },
   });
-  console.log(`✔ Administrador listo: ${admin.email}`);
+  console.log(`Administrador listo: ${admin.email}`);
 
-  // --- Usuario de solo lectura ---
-  const lectorEmail = process.env.LECTOR_EMAIL ?? "lector@impresion.com";
-  const lectorPassword = process.env.LECTOR_PASSWORD ?? "Lect@r1234!";
-  const lectorHash = await bcrypt.hash(lectorPassword, 12);
-  const lector = await prisma.usuario.upsert({
-    where: { email: lectorEmail },
-    update: {},
-    create: {
-      email: lectorEmail,
-      password: lectorHash,
-      nombre: "Lector",
-      rol: "LECTOR",
-    },
-  });
-  console.log(`✔ Usuario de solo lectura listo: ${lector.email}`);
+  const lectorEmail = process.env.LECTOR_EMAIL?.trim().toLowerCase();
+  const lectorPassword = process.env.LECTOR_PASSWORD?.trim();
+  if (lectorEmail && lectorPassword) {
+    const lectorHash = await bcrypt.hash(lectorPassword, 12);
+    const lector = await prisma.usuario.upsert({
+      where: { email: lectorEmail },
+      update: {},
+      create: {
+        email: lectorEmail,
+        password: lectorHash,
+        nombre: "Lector",
+        rol: "LECTOR",
+      },
+    });
+    console.log(`Usuario de solo lectura listo: ${lector.email}`);
+  }
 
-  // --- Configuración global ---
   const config = await prisma.configuracion.findFirst();
   if (!config) {
     await prisma.configuracion.create({
       data: { nombreEmpresa: "ImpresiónWeb", tema: "system" },
     });
-    console.log("✔ Configuración inicial creada.");
+    console.log("Configuración inicial creada.");
   }
 
-  // --- Datos de ejemplo (solo si no hay proyectos) ---
+  if (process.env.SEED_DEMO_DATA !== "true") {
+    console.log("Seed completado sin datos de ejemplo.");
+    return;
+  }
+
   const totalProyectos = await prisma.proyecto.count();
   if (totalProyectos === 0) {
     const hoy = new Date();
@@ -79,14 +91,24 @@ async function main() {
         descripcion: "Engranajes y bujes de repuesto para la línea de producción.",
         impresiones: {
           create: [
-            { nombre: "Engranaje 20 dientes", cantidad: 10, tiempo: 240, fecha: semanaPasada },
-            { nombre: "Buje deslizante", cantidad: 6, tiempo: 120, fecha: semanaPasada },
+            {
+              nombre: "Engranaje 20 dientes",
+              cantidad: 10,
+              tiempo: 240,
+              fecha: semanaPasada,
+            },
+            {
+              nombre: "Buje deslizante",
+              cantidad: 6,
+              tiempo: 120,
+              fecha: semanaPasada,
+            },
           ],
         },
       },
     });
 
-    console.log(`✔ Proyecto de ejemplo creado: ${proyecto1.titulo}`);
+    console.log(`Proyecto de ejemplo creado: ${proyecto1.titulo}`);
 
     await prisma.incidencia.createMany({
       data: [
@@ -104,22 +126,21 @@ async function main() {
         },
         {
           titulo: "Calibración de ejes completada",
-          descripcion: "<p>Se recalibraron los ejes X e Y. <strong>Resuelto.</strong></p>",
+          descripcion:
+            "<p>Se recalibraron los ejes X e Y. <strong>Resuelto.</strong></p>",
           estado: EstadoIncidencia.RESUELTA,
         },
       ],
     });
-    console.log("✔ Incidencias de ejemplo creadas.");
+    console.log("Incidencias de ejemplo creadas.");
   }
 
-  console.log("\n✅ Seed completado correctamente.");
-  console.log(`   Email: ${email}`);
-  console.log(`   Contraseña: ${password}`);
+  console.log("Seed completado correctamente.");
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Error en el seed:", e);
+    console.error("Error en el seed:", e);
     process.exit(1);
   })
   .finally(async () => {

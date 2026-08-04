@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { RichTextEditor } from "@/components/incidencias/rich-text-editor";
 import { guardarNotasProyecto } from "@/actions/proyecto.actions";
+import { sanitizarHtml } from "@/lib/sanitize";
 
 interface ProyectoNotasProps {
   proyectoId: string;
@@ -64,7 +65,7 @@ export function ProyectoNotas({
       <Card className="p-6">
         <div
           className="prosa max-w-none text-sm text-foreground"
-          dangerouslySetInnerHTML={{ __html: inicial }}
+          dangerouslySetInnerHTML={{ __html: sanitizarHtml(inicial) }}
         />
       </Card>
     );
