@@ -9,15 +9,20 @@ import {
 } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
+import { ModuloDesactivado } from "@/components/shared/modulo-desactivado";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { ActivityChart } from "@/components/dashboard/activity-chart";
 import { IncidenciasChart } from "@/components/dashboard/incidencias-chart";
 import { dashboardService } from "@/services/dashboard.service";
+import { obtenerEstadoModulo } from "@/lib/module-guard";
 import { formatearNumero, formatearTiempo } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
+  const modulo = await obtenerEstadoModulo("dashboard");
+  if (!modulo.activo) return <ModuloDesactivado nombre={modulo.nombre} />;
+
   const [stats, actividad, distribucion] = await Promise.all([
     dashboardService.obtenerEstadisticas(),
     dashboardService.obtenerActividad(14),

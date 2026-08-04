@@ -6,6 +6,7 @@ import {
   configuracionSchema,
   adminSchema,
   lectorSchema,
+  moduloConfiguracionSchema,
 } from "@/validators/configuracion.validator";
 import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
@@ -113,5 +114,39 @@ export async function actualizarLector(input: unknown): Promise<ActionResult> {
   } catch (error) {
     logger.error("Error al actualizar el usuario de solo lectura", error);
     return { success: false, message: "No se pudieron guardar los cambios." };
+  }
+}
+
+/** Activa o desactiva un modulo configurable de la aplicacion. */
+export async function actualizarModulo(input: unknown): Promise<ActionResult> {
+  try {
+    await requireAdmin();
+    const parsed = moduloConfiguracionSchema.safeParse(input);
+    if (!parsed.success) {
+      return {
+        success: false,
+        message: "Revisa la configuración del módulo.",
+        fieldErrors: parsed.error.flatten().fieldErrors,
+      };
+    }
+
+    await configuracionService.actualizarModulo(parsed.data);
+    revalidatePath("/configuracion");
+    revalidatePath("/", "layout");
+    revalidatePath(
+      parsed.data.clave === "base-conocimiento"
+        ? "/base-conocimiento"
+        : `/${parsed.data.clave}`,
+    );
+    return {
+      success: true,
+      data: undefined,
+      message: parsed.data.activo
+        ? "Módulo activado correctamente."
+        : "Módulo desactivado correctamente.",
+    };
+  } catch (error) {
+    logger.error("Error al actualizar módulo", error);
+    return { success: false, message: "No se pudo actualizar el módulo." };
   }
 }

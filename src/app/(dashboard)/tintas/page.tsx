@@ -3,6 +3,7 @@ import { normalizarTamanoPagina } from "@/lib/constants";
 import { Droplets, Plus, Scroll } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
+import { ModuloDesactivado } from "@/components/shared/modulo-desactivado";
 import { Pagination } from "@/components/shared/pagination";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { PapelCard } from "@/components/tintas/papel-card";
 import { PapelAddDialog } from "@/components/tintas/papel-add-dialog";
 import { tintaService } from "@/services/tinta.service";
 import { papelService } from "@/services/papel.service";
+import { obtenerEstadoModulo } from "@/lib/module-guard";
 
 export const metadata: Metadata = { title: "Tintas y papel" };
 
@@ -22,6 +24,9 @@ export default async function TintasPage({
 }: {
   searchParams: Promise<{ papelPagina?: string; papelTamano?: string }>;
 }) {
+  const modulo = await obtenerEstadoModulo("tintas");
+  if (!modulo.activo) return <ModuloDesactivado nombre={modulo.nombre} />;
+
   const params = await searchParams;
   const [tintas, papeles] = await Promise.all([
     tintaService.listar(),

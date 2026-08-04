@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { GeneralForm } from "@/components/configuracion/general-form";
 import { AdminForm } from "@/components/configuracion/admin-form";
 import { LectorForm } from "@/components/configuracion/lector-form";
+import { ModulosForm } from "@/components/configuracion/modulos-form";
 import { BackupCard } from "@/components/configuracion/backup-card";
 import { getSession } from "@/lib/session";
 import { configuracionService } from "@/services/configuracion.service";
@@ -13,10 +14,11 @@ export const metadata: Metadata = { title: "Configuración" };
 
 export default async function ConfiguracionPage() {
   const session = await getSession();
-  const [config, usuario, lector] = await Promise.all([
+  const [config, usuario, lector, modulos] = await Promise.all([
     configuracionService.obtener(),
     session?.user?.id ? usuarioRepository.obtener(session.user.id) : null,
     configuracionService.obtenerLector(),
+    configuracionService.obtenerModulos(),
   ]);
 
   return (
@@ -40,6 +42,7 @@ export default async function ConfiguracionPage() {
           />
         )}
         <LectorForm email={lector?.email ?? ""} />
+        <ModulosForm modulos={modulos} />
         <BackupCard />
       </div>
     </div>

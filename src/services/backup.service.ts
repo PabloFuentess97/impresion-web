@@ -43,6 +43,7 @@ export const backupService = {
     const zonasMapa = await prisma.zonaMapa.findMany();
     const ubicacionesImpresion = await prisma.ubicacionImpresion.findMany();
     const configuracion = await prisma.configuracion.findMany();
+    const modulosConfiguracion = await prisma.moduloConfiguracion.findMany();
 
     return {
       version: BACKUP_VERSION,
@@ -64,6 +65,7 @@ export const backupService = {
         zonasMapa,
         ubicacionesImpresion,
         configuracion,
+        modulosConfiguracion,
       },
     };
   },
@@ -123,6 +125,10 @@ export const backupService = {
       ["createdAt", "updatedAt"],
     );
     const configuracion = conFechas(datos.configuracion as never, ["updatedAt"]);
+    const modulosConfiguracion = conFechas(
+      datos.modulosConfiguracion as never,
+      ["createdAt", "updatedAt"],
+    );
 
     await prisma.$transaction(
       async (tx) => {
@@ -141,6 +147,7 @@ export const backupService = {
         await tx.proyecto.deleteMany();
         await tx.incidencia.deleteMany();
         await tx.inventario.deleteMany();
+        await tx.moduloConfiguracion.deleteMany();
         await tx.configuracion.deleteMany();
         await tx.usuario.deleteMany();
 
@@ -149,6 +156,10 @@ export const backupService = {
           await tx.usuario.createMany({ data: usuarios as never });
         if (configuracion.length)
           await tx.configuracion.createMany({ data: configuracion as never });
+        if (modulosConfiguracion.length)
+          await tx.moduloConfiguracion.createMany({
+            data: modulosConfiguracion as never,
+          });
         if (incidencias.length)
           await tx.incidencia.createMany({ data: incidencias as never });
         if (inventario.length)
@@ -196,7 +207,8 @@ export const backupService = {
       estanciasMapa.length +
       zonasMapa.length +
       ubicacionesImpresion.length +
-      configuracion.length
+      configuracion.length +
+      modulosConfiguracion.length
     );
   },
 };

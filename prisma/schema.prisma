@@ -308,3 +308,16 @@ model Configuracion {
 
   @@map("configuracion")
 }
+
+/// Configuracion de modulos activables/desactivables desde la base de datos.
+model ModuloConfiguracion {
+  id        String   @id @default(cuid())
+  /// Clave estable del modulo (dashboard, proyectos, reportes, etc.).
+  clave     String   @unique
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([activo])
+  @@map("modulos_configuracion")
+}

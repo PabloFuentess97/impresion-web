@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CLAVES_MODULO } from "@/lib/modules";
 
 /** Validación de la configuración general de la empresa. */
 export const configuracionSchema = z.object({
@@ -65,3 +66,15 @@ export const lectorSchema = z.object({
 });
 
 export type LectorInput = z.infer<typeof lectorSchema>;
+
+/** Validacion del estado activo/inactivo de un modulo configurable. */
+export const moduloConfiguracionSchema = z.object({
+  clave: z.enum(CLAVES_MODULO, {
+    invalid_type_error: "Modulo no valido.",
+  }),
+  activo: z.boolean(),
+});
+
+export type ModuloConfiguracionInput = z.infer<
+  typeof moduloConfiguracionSchema
+>;

@@ -4,20 +4,26 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS, HREFS_LECTOR } from "./nav-config";
+import type { ClaveModulo } from "@/lib/modules";
 
 /** Lista de enlaces de navegación con estado activo. */
 export function SidebarNav({
   onNavigate,
   esLector = false,
+  modulosActivos,
 }: {
   onNavigate?: () => void;
   esLector?: boolean;
+  modulosActivos?: ClaveModulo[];
 }) {
   const pathname = usePathname();
+  const activos = new Set(modulosActivos);
 
-  const items = esLector
-    ? NAV_ITEMS.filter((item) => HREFS_LECTOR.includes(item.href))
-    : NAV_ITEMS;
+  const items = NAV_ITEMS.filter((item) => {
+    const moduloActivo = !item.clave || !modulosActivos || activos.has(item.clave);
+    const permitidoLector = !esLector || HREFS_LECTOR.includes(item.href as never);
+    return moduloActivo && permitidoLector;
+  });
 
   return (
     <nav className="flex flex-1 flex-col gap-1 px-3">

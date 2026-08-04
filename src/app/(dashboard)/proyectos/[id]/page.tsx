@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
+import { ModuloDesactivado } from "@/components/shared/modulo-desactivado";
 import { Pagination } from "@/components/shared/pagination";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -41,6 +42,7 @@ import { SalidaActions } from "@/components/salidas/salida-actions";
 import { proyectoService } from "@/services/proyecto.service";
 import { salidaService } from "@/services/salida.service";
 import { getSession } from "@/lib/session";
+import { obtenerEstadoModulo } from "@/lib/module-guard";
 import {
   formatearFecha,
   formatearFechaLarga,
@@ -71,6 +73,9 @@ export default async function ProyectoDetallePage({
     salidasTamano?: string;
   }>;
 }) {
+  const modulo = await obtenerEstadoModulo("proyectos");
+  if (!modulo.activo) return <ModuloDesactivado nombre={modulo.nombre} />;
+
   const { id } = await params;
   const query = await searchParams;
   const [proyecto, salidas, session] = await Promise.all([

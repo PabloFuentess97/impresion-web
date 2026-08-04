@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
+import { ModuloDesactivado } from "@/components/shared/modulo-desactivado";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
 import {
@@ -25,6 +26,7 @@ import { ExportButtons } from "@/components/reportes/export-buttons";
 import { EstadoBadge } from "@/components/incidencias/estado-badge";
 import { reporteService } from "@/services/reporte.service";
 import { configuracionService } from "@/services/configuracion.service";
+import { obtenerEstadoModulo } from "@/lib/module-guard";
 import type { PeriodoReporte } from "@/lib/constants";
 import {
   formatearFecha,
@@ -74,6 +76,9 @@ export default async function ReportesPage({
     hasta?: string;
   }>;
 }) {
+  const modulo = await obtenerEstadoModulo("reportes");
+  if (!modulo.activo) return <ModuloDesactivado nombre={modulo.nombre} />;
+
   const params = await searchParams;
   const periodo = (params.periodo as PeriodoReporte) || "hoy";
 

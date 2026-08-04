@@ -3,6 +3,7 @@ import { normalizarTamanoPagina } from "@/lib/constants";
 import { Plus, Package } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
+import { ModuloDesactivado } from "@/components/shared/modulo-desactivado";
 import { SearchBar } from "@/components/shared/search-bar";
 import { SortSelect } from "@/components/shared/sort-select";
 import { Pagination } from "@/components/shared/pagination";
@@ -24,6 +25,7 @@ import {
   inventarioService,
   type OrdenInventario,
 } from "@/services/inventario.service";
+import { obtenerEstadoModulo } from "@/lib/module-guard";
 import { formatearFecha, formatearNumero } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Inventario" };
@@ -40,6 +42,9 @@ export default async function InventarioPage({
 }: {
   searchParams: Promise<{ q?: string; pagina?: string; tamano?: string; orden?: string }>;
 }) {
+  const modulo = await obtenerEstadoModulo("inventario");
+  if (!modulo.activo) return <ModuloDesactivado nombre={modulo.nombre} />;
+
   const params = await searchParams;
   const busqueda = params.q ?? "";
   const pagina = Number(params.pagina) || 1;

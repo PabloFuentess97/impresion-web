@@ -4,6 +4,7 @@ import { Plus, AlertTriangle, CalendarDays } from "lucide-react";
 import type { EstadoIncidencia } from "@prisma/client";
 
 import { PageHeader } from "@/components/shared/page-header";
+import { ModuloDesactivado } from "@/components/shared/modulo-desactivado";
 import { SearchBar } from "@/components/shared/search-bar";
 import { Pagination } from "@/components/shared/pagination";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -15,6 +16,7 @@ import { IncidenciaViewDialog } from "@/components/incidencias/incidencia-view-d
 import { EstadoBadge } from "@/components/incidencias/estado-badge";
 import { EstadoFilter } from "@/components/incidencias/estado-filter";
 import { incidenciaService } from "@/services/incidencia.service";
+import { obtenerEstadoModulo } from "@/lib/module-guard";
 import { htmlATexto } from "@/lib/sanitize";
 import { formatearFecha } from "@/lib/format";
 
@@ -25,6 +27,9 @@ export default async function IncidenciasPage({
 }: {
   searchParams: Promise<{ q?: string; pagina?: string; tamano?: string; estado?: string }>;
 }) {
+  const modulo = await obtenerEstadoModulo("incidencias");
+  if (!modulo.activo) return <ModuloDesactivado nombre={modulo.nombre} />;
+
   const params = await searchParams;
   const busqueda = params.q ?? "";
   const pagina = Number(params.pagina) || 1;

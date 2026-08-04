@@ -2,14 +2,19 @@ import type { Metadata } from "next";
 import { Map, Package, Pin } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
+import { ModuloDesactivado } from "@/components/shared/modulo-desactivado";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { MapaVisual } from "@/components/mapa/mapa-visual";
 import { mapaService } from "@/services/mapa.service";
+import { obtenerEstadoModulo } from "@/lib/module-guard";
 import { formatearNumero } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Mapa visual" };
 
 export default async function MapaPage() {
+  const modulo = await obtenerEstadoModulo("mapa");
+  if (!modulo.activo) return <ModuloDesactivado nombre={modulo.nombre} />;
+
   const datos = await mapaService.obtenerMapa();
 
   const totalZonas = datos.estancias.reduce(

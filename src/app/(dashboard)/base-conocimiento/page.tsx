@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 
 import { BaseConocimiento } from "@/components/base-conocimiento/base-conocimiento";
+import { ModuloDesactivado } from "@/components/shared/modulo-desactivado";
+import { configuracionService } from "@/services/configuracion.service";
+import { obtenerEstadoModulo } from "@/lib/module-guard";
 
 export const metadata: Metadata = {
   title: "Base de conocimiento",
@@ -14,10 +17,15 @@ export const metadata: Metadata = {
  * La ruta vive dentro del grupo `(dashboard)`, cuyo layout exige sesión
  * iniciada; por tanto solo es accesible para usuarios autenticados.
  */
-export default function BaseConocimientoPage() {
+export default async function BaseConocimientoPage() {
+  const modulo = await obtenerEstadoModulo("base-conocimiento");
+  if (!modulo.activo) return <ModuloDesactivado nombre={modulo.nombre} />;
+
+  const config = await configuracionService.obtener();
+
   return (
     <div className="animate-fade-in">
-      <BaseConocimiento />
+      <BaseConocimiento nombreApp={config.nombreEmpresa} />
     </div>
   );
 }

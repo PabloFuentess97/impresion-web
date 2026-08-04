@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Plus, FolderKanban, Layers, Clock, Lock } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
+import { ModuloDesactivado } from "@/components/shared/modulo-desactivado";
 import { SearchBar } from "@/components/shared/search-bar";
 import { SortSelect } from "@/components/shared/sort-select";
 import { Pagination } from "@/components/shared/pagination";
@@ -23,6 +24,7 @@ import { ProyectoFormDialog } from "@/components/proyectos/proyecto-form-dialog"
 import { ProyectoActions } from "@/components/proyectos/proyecto-actions";
 import { proyectoService, type OrdenProyecto } from "@/services/proyecto.service";
 import { getSession } from "@/lib/session";
+import { obtenerEstadoModulo } from "@/lib/module-guard";
 import { formatearFecha, formatearTiempo, formatearNumero } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Proyectos" };
@@ -40,6 +42,9 @@ export default async function ProyectosPage({
 }: {
   searchParams: Promise<{ q?: string; pagina?: string; tamano?: string; orden?: string }>;
 }) {
+  const modulo = await obtenerEstadoModulo("proyectos");
+  if (!modulo.activo) return <ModuloDesactivado nombre={modulo.nombre} />;
+
   const params = await searchParams;
   const busqueda = params.q ?? "";
   const pagina = Number(params.pagina) || 1;

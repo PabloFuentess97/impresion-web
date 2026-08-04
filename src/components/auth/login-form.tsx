@@ -39,7 +39,14 @@ export function LoginForm() {
 
     if (resultado.success) {
       toast.success("Sesión iniciada correctamente.");
-      router.push("/dashboard");
+      const destino =
+        resultado.data &&
+        typeof resultado.data === "object" &&
+        "redirectTo" in resultado.data &&
+        typeof resultado.data.redirectTo === "string"
+          ? resultado.data.redirectTo
+          : "/dashboard";
+      router.push(destino);
       router.refresh();
     } else {
       if (resultado.fieldErrors) {

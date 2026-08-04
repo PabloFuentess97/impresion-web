@@ -1,11 +1,19 @@
 import bcrypt from "bcryptjs";
 import { randomBytes } from "node:crypto";
 import { configuracionRepository } from "@/repositories/configuracion.repository";
+import { moduloRepository } from "@/repositories/modulo.repository";
 import { usuarioRepository } from "@/repositories/usuario.repository";
+import {
+  MODULOS_ACTIVABLES,
+  HREFS_LECTOR,
+  obtenerModuloDefinicion,
+  type ClaveModulo,
+} from "@/lib/modules";
 import type {
   ConfiguracionInput,
   AdminInput,
   LectorInput,
+  ModuloConfiguracionInput,
 } from "@/validators/configuracion.validator";
 
 /**
@@ -14,6 +22,48 @@ import type {
 export const configuracionService = {
   obtener() {
     return configuracionRepository.obtenerOCrear();
+  },
+
+  async obtenerModulos() {
+    const registros = await moduloRepository.listar();
+    const porClave = new Map(registros.map((registro) => [registro.clave, registro]));
+
+    return MODULOS_ACTIVABLES.map((definicion) => {
+      const registro = porClave.get(definicion.clave);
+      return {
+        ...definicion,
+        activo: registro?.activo ?? true,
+        id: registro?.id ?? definicion.clave,
+      };
+    });
+  },
+
+  async moduloActivo(clave: ClaveModulo) {
+    const modulo = await moduloRepository.obtener(clave);
+    return modulo?.activo ?? true;
+  },
+
+  async obtenerModulo(clave: ClaveModulo) {
+    const [activo, definicion] = await Promise.all([
+      this.moduloActivo(clave),
+      Promise.resolve(obtenerModuloDefinicion(clave)),
+    ]);
+    return definicion ? { ...definicion, activo } : null;
+  },
+
+  async actualizarModulo(data: ModuloConfiguracionInput) {
+    return moduloRepository.actualizar(data.clave, data.activo);
+  },
+
+  async obtenerRutaInicio(esLector = false) {
+    const modulos = await this.obtenerModulos();
+    const modulo = modulos.find((item) => {
+      const permitido = !esLector || HREFS_LECTOR.includes(item.href as never);
+      return item.activo && permitido;
+    });
+
+    if (modulo) return modulo.href;
+    return esLector ? "/proyectos" : "/configuracion";
   },
 
   /** Genera un nuevo token para el enlace del QR de recogidas y lo guarda. */

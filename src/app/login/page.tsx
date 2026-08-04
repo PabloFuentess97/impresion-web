@@ -12,7 +12,12 @@ export const metadata: Metadata = {
 
 export default async function LoginPage() {
   const session = await getSession();
-  if (session?.user) redirect("/dashboard");
+  if (session?.user) {
+    const destino = await configuracionService.obtenerRutaInicio(
+      session.user.rol === "LECTOR",
+    );
+    redirect(destino);
+  }
 
   let nombreEmpresa = "ImpresiónWeb";
   try {

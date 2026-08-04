@@ -6,6 +6,7 @@ import QRCode from "qrcode";
 import { PackageCheck, Inbox } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
+import { ModuloDesactivado } from "@/components/shared/modulo-desactivado";
 import { Pagination } from "@/components/shared/pagination";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ import { RecogidaQr } from "@/components/recogidas/recogida-qr";
 import { RecogidaActions } from "@/components/recogidas/recogida-actions";
 import { recogidaService, type FiltroEstadoRecogida } from "@/services/recogida.service";
 import { configuracionService } from "@/services/configuracion.service";
+import { obtenerEstadoModulo } from "@/lib/module-guard";
 import { formatearFecha, formatearNumero } from "@/lib/format";
 import type { EstadoRecogida } from "@/types";
 
@@ -54,6 +56,9 @@ export default async function RecogidasPage({
 }: {
   searchParams: Promise<{ estado?: string; pagina?: string; tamano?: string }>;
 }) {
+  const modulo = await obtenerEstadoModulo("recogidas");
+  if (!modulo.activo) return <ModuloDesactivado nombre={modulo.nombre} />;
+
   const params = await searchParams;
   const estado = (
     ["PENDIENTE", "APROBADA", "DENEGADA", "todas"].includes(params.estado ?? "")

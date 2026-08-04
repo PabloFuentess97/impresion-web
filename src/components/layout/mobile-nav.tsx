@@ -5,14 +5,17 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Menu, Printer, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarNav } from "./sidebar-nav";
+import type { ClaveModulo } from "@/lib/modules";
 
 /** Navegación lateral para móviles (drawer). */
 export function MobileNav({
   nombreEmpresa,
   esLector = false,
+  modulosActivos,
 }: {
   nombreEmpresa: string;
   esLector?: boolean;
+  modulosActivos?: ClaveModulo[];
 }) {
   const [abierto, setAbierto] = React.useState(false);
 
@@ -42,7 +45,11 @@ export function MobileNav({
               </Button>
             </DialogPrimitive.Close>
           </div>
-          <SidebarNav esLector={esLector} onNavigate={() => setAbierto(false)} />
+          <SidebarNav
+            esLector={esLector}
+            modulosActivos={modulosActivos}
+            onNavigate={() => setAbierto(false)}
+          />
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

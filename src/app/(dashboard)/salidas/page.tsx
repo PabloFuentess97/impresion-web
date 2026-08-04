@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Plus, Truck, Package } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
+import { ModuloDesactivado } from "@/components/shared/modulo-desactivado";
 import { SearchBar } from "@/components/shared/search-bar";
 import { Pagination } from "@/components/shared/pagination";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -24,6 +25,7 @@ import { SolicitarRecogidaDialog } from "@/components/recogidas/solicitar-recogi
 import { salidaService } from "@/services/salida.service";
 import { proyectoService } from "@/services/proyecto.service";
 import { getSession } from "@/lib/session";
+import { obtenerEstadoModulo } from "@/lib/module-guard";
 import { formatearFecha, formatearNumero } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Salidas" };
@@ -33,6 +35,9 @@ export default async function SalidasPage({
 }: {
   searchParams: Promise<{ q?: string; pagina?: string; tamano?: string }>;
 }) {
+  const modulo = await obtenerEstadoModulo("salidas");
+  if (!modulo.activo) return <ModuloDesactivado nombre={modulo.nombre} />;
+
   const params = await searchParams;
   const busqueda = params.q ?? "";
   const pagina = Number(params.pagina) || 1;

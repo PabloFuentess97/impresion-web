@@ -59,8 +59,7 @@ export const authConfig = {
 
       // Si ya está autenticado y visita /login, lo enviamos a su inicio.
       if (esRutaLogin && estaAutenticado) {
-        const destino = esLector ? "/proyectos" : "/dashboard";
-        return Response.redirect(new URL(destino, nextUrl));
+        return Response.redirect(new URL("/", nextUrl));
       }
 
       return true;

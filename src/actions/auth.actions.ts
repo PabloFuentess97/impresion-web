@@ -2,6 +2,8 @@
 
 import { AuthError } from "next-auth";
 import { signIn, signOut } from "@/auth";
+import { configuracionService } from "@/services/configuracion.service";
+import { usuarioRepository } from "@/repositories/usuario.repository";
 import { loginSchema } from "@/validators/auth.validator";
 import type { ActionResult } from "@/types";
 import { logger } from "@/lib/logger";
@@ -14,7 +16,7 @@ import { logger } from "@/lib/logger";
 export async function iniciarSesion(
   _prev: ActionResult | null,
   formData: FormData,
-): Promise<ActionResult> {
+): Promise<ActionResult<{ redirectTo: string }>> {
   const datos = {
     email: formData.get("email"),
     password: formData.get("password"),
@@ -36,7 +38,14 @@ export async function iniciarSesion(
       redirect: false,
     });
 
-    return { success: true, data: undefined };
+    const usuario = await usuarioRepository.obtenerPorEmail(
+      parsed.data.email.toLowerCase(),
+    );
+    const redirectTo = await configuracionService.obtenerRutaInicio(
+      usuario?.rol === "LECTOR",
+    );
+
+    return { success: true, data: { redirectTo } };
   } catch (error) {
     if (error instanceof AuthError) {
       return {

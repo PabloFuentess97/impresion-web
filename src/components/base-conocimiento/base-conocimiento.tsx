@@ -50,6 +50,31 @@ function normalizar(texto: string): string {
 }
 
 /** Comprueba si un artículo coincide con el término de búsqueda. */
+function personalizarArticulo(articulo: Articulo, nombreApp: string): Articulo {
+  const reemplazar = (texto: string) => texto.replaceAll("ImpresiónWeb", nombreApp);
+  return {
+    ...articulo,
+    titulo: reemplazar(articulo.titulo),
+    resumen: reemplazar(articulo.resumen),
+    puntos: articulo.puntos.map(reemplazar),
+  };
+}
+
+function personalizarCategoria(
+  categoria: Categoria,
+  nombreApp: string,
+): Categoria {
+  const reemplazar = (texto: string) => texto.replaceAll("ImpresiónWeb", nombreApp);
+  return {
+    ...categoria,
+    titulo: reemplazar(categoria.titulo),
+    descripcion: reemplazar(categoria.descripcion),
+    articulos: categoria.articulos.map((articulo) =>
+      personalizarArticulo(articulo, nombreApp),
+    ),
+  };
+}
+
 function coincide(articulo: Articulo, termino: string): boolean {
   if (!termino) return true;
   const t = normalizar(termino);
@@ -162,10 +187,14 @@ function CategoriaBloque({
 }
 
 /** Base de conocimiento interactiva del panel. */
-export function BaseConocimiento() {
+export function BaseConocimiento({ nombreApp }: { nombreApp: string }) {
   const [termino, setTermino] = React.useState("");
   const [categoriaActiva, setCategoriaActiva] = React.useState<string>("todas");
   const [abiertos, setAbiertos] = React.useState<Set<string>>(new Set());
+  const categorias = React.useMemo(
+    () => CATEGORIAS.map((categoria) => personalizarCategoria(categoria, nombreApp)),
+    [nombreApp],
+  );
 
   const toggleArticulo = React.useCallback((id: string) => {
     setAbiertos((prev) => {
@@ -178,14 +207,14 @@ export function BaseConocimiento() {
 
   // Filtra categorías y artículos según búsqueda y categoría activa.
   const categoriasFiltradas = React.useMemo(() => {
-    return CATEGORIAS.map((categoria) => {
+    return categorias.map((categoria) => {
       if (categoriaActiva !== "todas" && categoria.id !== categoriaActiva) {
         return { categoria, articulos: [] as Articulo[] };
       }
       const articulos = categoria.articulos.filter((a) => coincide(a, termino));
       return { categoria, articulos };
     }).filter(({ articulos }) => articulos.length > 0);
-  }, [termino, categoriaActiva]);
+  }, [termino, categoriaActiva, categorias]);
 
   const totalArticulos = React.useMemo(
     () => categoriasFiltradas.reduce((n, c) => n + c.articulos.length, 0),
@@ -221,7 +250,7 @@ export function BaseConocimiento() {
               </h1>
               <p className="max-w-2xl text-sm text-muted-foreground">
                 Guías, buenas prácticas y respuestas para sacar el máximo partido a
-                ImpresiónWeb. Contenido exclusivo para usuarios con sesión iniciada.
+                {nombreApp}. Contenido exclusivo para usuarios con sesión iniciada.
               </p>
             </div>
           </div>
@@ -259,7 +288,7 @@ export function BaseConocimiento() {
         >
           Todo
         </FiltroChip>
-        {CATEGORIAS.map((categoria) => {
+        {categorias.map((categoria) => {
           const Icono = ICONOS[categoria.icono] ?? BookOpen;
           return (
             <FiltroChip
@@ -335,3 +364,4 @@ function FiltroChip({
     </button>
   );
 }
+
