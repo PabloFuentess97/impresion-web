@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { incidenciaService } from "@/services/incidencia.service";
+import { auditoriaService } from "@/services/auditoria.service";
 import { incidenciaSchema } from "@/validators/incidencia.validator";
 import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
@@ -12,7 +13,7 @@ export async function crearIncidencia(
   input: unknown,
 ): Promise<ActionResult<{ id: string }>> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = incidenciaSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -23,6 +24,13 @@ export async function crearIncidencia(
     }
 
     const incidencia = await incidenciaService.crear(parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: "crear",
+      entidad: "incidencia",
+      entidadId: incidencia.id,
+      descripcion: `Incidencia creada: ${incidencia.titulo}`,
+      detalle: { titulo: parsed.data.titulo, estado: parsed.data.estado },
+    });
     revalidatePath("/incidencias");
     revalidatePath("/dashboard");
     return {
@@ -42,7 +50,7 @@ export async function actualizarIncidencia(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = incidenciaSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -58,6 +66,13 @@ export async function actualizarIncidencia(
     }
 
     await incidenciaService.actualizar(id, parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: "actualizar",
+      entidad: "incidencia",
+      entidadId: id,
+      descripcion: `Incidencia actualizada: ${parsed.data.titulo}`,
+      detalle: { titulo: parsed.data.titulo, estado: parsed.data.estado },
+    });
     revalidatePath("/incidencias");
     revalidatePath("/dashboard");
     return { success: true, data: undefined, message: "Incidencia actualizada." };
@@ -70,13 +85,19 @@ export async function actualizarIncidencia(
 /** Elimina una incidencia. */
 export async function eliminarIncidencia(id: string): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const existente = await incidenciaService.obtener(id);
     if (!existente) {
       return { success: false, message: "La incidencia no existe." };
     }
 
     await incidenciaService.eliminar(id);
+    await auditoriaService.registrar(session, {
+      accion: "eliminar",
+      entidad: "incidencia",
+      entidadId: id,
+      descripcion: `Incidencia eliminada: ${existente.titulo}`,
+    });
     revalidatePath("/incidencias");
     revalidatePath("/dashboard");
     return { success: true, data: undefined, message: "Incidencia eliminada." };

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import { mapaService } from "@/services/mapa.service";
+import { auditoriaService } from "@/services/auditoria.service";
 import {
   estanciaSchema,
   ubicacionSchema,
@@ -16,7 +17,7 @@ const MAPA_PATH = "/mapa";
 
 export async function crearEstancia(input: unknown): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = estanciaSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -25,7 +26,14 @@ export async function crearEstancia(input: unknown): Promise<ActionResult> {
         fieldErrors: parsed.error.flatten().fieldErrors,
       };
     }
-    await mapaService.crearEstancia(parsed.data);
+    const estancia = await mapaService.crearEstancia(parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: "crear",
+      entidad: "estancia_mapa",
+      entidadId: estancia.id,
+      descripcion: `Estancia creada: ${estancia.nombre}`,
+      detalle: parsed.data,
+    });
     revalidatePath(MAPA_PATH);
     return { success: true, data: undefined, message: "Estancia creada." };
   } catch (error) {
@@ -39,7 +47,7 @@ export async function actualizarEstancia(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = estanciaSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -49,6 +57,13 @@ export async function actualizarEstancia(
       };
     }
     await mapaService.actualizarEstancia(id, parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: "actualizar",
+      entidad: "estancia_mapa",
+      entidadId: id,
+      descripcion: `Estancia actualizada: ${parsed.data.nombre}`,
+      detalle: parsed.data,
+    });
     revalidatePath(MAPA_PATH);
     return { success: true, data: undefined, message: "Estancia actualizada." };
   } catch (error) {
@@ -59,8 +74,14 @@ export async function actualizarEstancia(
 
 export async function eliminarEstancia(id: string): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     await mapaService.eliminarEstancia(id);
+    await auditoriaService.registrar(session, {
+      accion: "eliminar",
+      entidad: "estancia_mapa",
+      entidadId: id,
+      descripcion: "Estancia eliminada.",
+    });
     revalidatePath(MAPA_PATH);
     return { success: true, data: undefined, message: "Estancia eliminada." };
   } catch (error) {
@@ -71,7 +92,7 @@ export async function eliminarEstancia(id: string): Promise<ActionResult> {
 
 export async function crearZona(input: unknown): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = zonaSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -80,7 +101,14 @@ export async function crearZona(input: unknown): Promise<ActionResult> {
         fieldErrors: parsed.error.flatten().fieldErrors,
       };
     }
-    await mapaService.crearZona(parsed.data);
+    const zona = await mapaService.crearZona(parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: "crear",
+      entidad: "zona_mapa",
+      entidadId: zona.id,
+      descripcion: `Zona creada: ${zona.nombre}`,
+      detalle: parsed.data,
+    });
     revalidatePath(MAPA_PATH);
     return { success: true, data: undefined, message: "Zona creada." };
   } catch (error) {
@@ -94,7 +122,7 @@ export async function actualizarZona(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = zonaSchema.omit({ estanciaId: true }).safeParse(input);
     if (!parsed.success) {
       return {
@@ -104,6 +132,13 @@ export async function actualizarZona(
       };
     }
     await mapaService.actualizarZona(id, parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: "actualizar",
+      entidad: "zona_mapa",
+      entidadId: id,
+      descripcion: `Zona actualizada: ${parsed.data.nombre}`,
+      detalle: parsed.data,
+    });
     revalidatePath(MAPA_PATH);
     return { success: true, data: undefined, message: "Zona actualizada." };
   } catch (error) {
@@ -133,8 +168,14 @@ export async function actualizarZonaPosicion(
 
 export async function eliminarZona(id: string): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     await mapaService.eliminarZona(id);
+    await auditoriaService.registrar(session, {
+      accion: "eliminar",
+      entidad: "zona_mapa",
+      entidadId: id,
+      descripcion: "Zona eliminada.",
+    });
     revalidatePath(MAPA_PATH);
     return { success: true, data: undefined, message: "Zona eliminada." };
   } catch (error) {
@@ -145,7 +186,7 @@ export async function eliminarZona(id: string): Promise<ActionResult> {
 
 export async function guardarUbicacion(input: unknown): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = ubicacionSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -154,7 +195,14 @@ export async function guardarUbicacion(input: unknown): Promise<ActionResult> {
         fieldErrors: parsed.error.flatten().fieldErrors,
       };
     }
-    await mapaService.guardarUbicacion(parsed.data);
+    const ubicacion = await mapaService.guardarUbicacion(parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: "crear",
+      entidad: "ubicacion_impresion",
+      entidadId: ubicacion.id,
+      descripcion: "Impresión ubicada en el mapa.",
+      detalle: parsed.data,
+    });
     revalidatePath(MAPA_PATH);
     return { success: true, data: undefined, message: "Impresión ubicada." };
   } catch (error) {
@@ -165,8 +213,14 @@ export async function guardarUbicacion(input: unknown): Promise<ActionResult> {
 
 export async function eliminarUbicacion(id: string): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     await mapaService.eliminarUbicacion(id);
+    await auditoriaService.registrar(session, {
+      accion: "eliminar",
+      entidad: "ubicacion_impresion",
+      entidadId: id,
+      descripcion: "Ubicación retirada del mapa.",
+    });
     revalidatePath(MAPA_PATH);
     return { success: true, data: undefined, message: "Ubicación retirada." };
   } catch (error) {

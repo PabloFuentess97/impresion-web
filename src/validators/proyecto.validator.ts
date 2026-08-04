@@ -4,6 +4,9 @@ import { z } from "zod";
 const opcionalNumero = (v: unknown) =>
   v === "" || v === null || v === undefined ? undefined : v;
 
+const opcionalFecha = (v: unknown) =>
+  v === "" || v === null || v === undefined ? undefined : v;
+
 /** Validación para crear o editar un proyecto. */
 export const proyectoSchema = z.object({
   titulo: z
@@ -32,6 +35,14 @@ export const proyectoSchema = z.object({
       .max(10_000_000, "La cantidad es demasiado grande.")
       .optional(),
   ),
+  estado: z
+    .enum(["PENDIENTE", "EN_PRODUCCION", "PAUSADO", "TERMINADO", "CANCELADO"])
+    .default("PENDIENTE"),
+  prioridad: z
+    .enum(["BAJA", "MEDIA", "ALTA", "URGENTE"])
+    .default("MEDIA"),
+  fechaInicio: z.preprocess(opcionalFecha, z.coerce.date().optional()),
+  fechaEntrega: z.preprocess(opcionalFecha, z.coerce.date().optional()),
 });
 
 export type ProyectoInput = z.infer<typeof proyectoSchema>;

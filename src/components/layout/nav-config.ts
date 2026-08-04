@@ -8,6 +8,8 @@ import {
   PackageCheck,
   FileBarChart,
   BookOpen,
+  CalendarDays,
+  History,
   Map,
   Settings,
   type LucideIcon,
@@ -42,6 +44,12 @@ export const NAV_ITEMS: NavItem[] = [
     icono: PackageCheck,
     clave: "recogidas",
   },
+  {
+    label: "Calendario",
+    href: "/calendario",
+    icono: CalendarDays,
+    clave: "calendario",
+  },
   { label: "Mapa visual", href: "/mapa", icono: Map, clave: "mapa" },
   {
     label: "Inventario",
@@ -73,6 +81,7 @@ export const NAV_ITEMS: NavItem[] = [
     icono: BookOpen,
     clave: "base-conocimiento",
   },
+  { label: "Auditoría", href: "/auditoria", icono: History, clave: "auditoria" },
   { label: "Configuración", href: "/configuracion", icono: Settings },
 ];
 

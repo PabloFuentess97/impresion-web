@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { configuracionService } from "@/services/configuracion.service";
+import { auditoriaService } from "@/services/auditoria.service";
 import {
   configuracionSchema,
   adminSchema,
@@ -17,7 +18,7 @@ export async function actualizarConfiguracion(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = configuracionSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -28,6 +29,15 @@ export async function actualizarConfiguracion(
     }
 
     await configuracionService.actualizar(parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: "actualizar",
+      entidad: "configuracion",
+      descripcion: "Configuración general actualizada.",
+      detalle: {
+        nombreEmpresa: parsed.data.nombreEmpresa,
+        tema: parsed.data.tema,
+      },
+    });
     revalidatePath("/configuracion");
     revalidatePath("/", "layout");
     return {
@@ -69,6 +79,13 @@ export async function actualizarAdmin(input: unknown): Promise<ActionResult> {
       };
     }
 
+    await auditoriaService.registrar(session, {
+      accion: "actualizar",
+      entidad: "usuario",
+      entidadId: session.user.id,
+      descripcion: "Datos del administrador actualizados.",
+      detalle: { email: parsed.data.email, nombre: parsed.data.nombre },
+    });
     revalidatePath("/configuracion");
     return {
       success: true,
@@ -84,7 +101,7 @@ export async function actualizarAdmin(input: unknown): Promise<ActionResult> {
 /** Actualiza el correo y/o la contraseña del usuario de solo lectura. */
 export async function actualizarLector(input: unknown): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = lectorSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -105,6 +122,12 @@ export async function actualizarLector(input: unknown): Promise<ActionResult> {
       };
     }
 
+    await auditoriaService.registrar(session, {
+      accion: "actualizar",
+      entidad: "usuario",
+      descripcion: "Usuario de solo lectura actualizado.",
+      detalle: { email: parsed.data.email },
+    });
     revalidatePath("/configuracion");
     return {
       success: true,
@@ -120,7 +143,7 @@ export async function actualizarLector(input: unknown): Promise<ActionResult> {
 /** Activa o desactiva un modulo configurable de la aplicacion. */
 export async function actualizarModulo(input: unknown): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = moduloConfiguracionSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -131,6 +154,13 @@ export async function actualizarModulo(input: unknown): Promise<ActionResult> {
     }
 
     await configuracionService.actualizarModulo(parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: parsed.data.activo ? "activar" : "desactivar",
+      entidad: "modulo",
+      entidadId: parsed.data.clave,
+      descripcion: `${parsed.data.activo ? "Módulo activado" : "Módulo desactivado"}: ${parsed.data.clave}`,
+      detalle: parsed.data,
+    });
     revalidatePath("/configuracion");
     revalidatePath("/", "layout");
     revalidatePath(

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -21,6 +21,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  OPCIONES_ESTADO_PROYECTO,
+  OPCIONES_PRIORIDAD_PROYECTO,
+} from "@/lib/constants";
+import {
   proyectoSchema,
   type ProyectoInput,
 } from "@/validators/proyecto.validator";
@@ -31,8 +42,21 @@ interface ProyectoFormDialogProps {
   trigger: React.ReactNode;
   proyecto?: Pick<
     Proyecto,
-    "id" | "titulo" | "descripcion" | "rutaImpresion" | "cantidadProduccion"
+    | "id"
+    | "titulo"
+    | "descripcion"
+    | "rutaImpresion"
+    | "cantidadProduccion"
+    | "estado"
+    | "prioridad"
+    | "fechaInicio"
+    | "fechaEntrega"
   >;
+}
+
+function fechaInput(fecha?: Date | string | null) {
+  if (!fecha) return "";
+  return new Date(fecha).toISOString().slice(0, 10);
 }
 
 /** Diálogo con formulario para crear o editar un proyecto. */
@@ -46,6 +70,7 @@ export function ProyectoFormDialog({
 
   const {
     register,
+    control,
     handleSubmit,
     reset,
     setError,
@@ -57,6 +82,10 @@ export function ProyectoFormDialog({
       descripcion: proyecto?.descripcion ?? "",
       rutaImpresion: proyecto?.rutaImpresion ?? "",
       cantidadProduccion: proyecto?.cantidadProduccion ?? undefined,
+      estado: proyecto?.estado ?? "PENDIENTE",
+      prioridad: proyecto?.prioridad ?? "MEDIA",
+      fechaInicio: fechaInput(proyecto?.fechaInicio) as never,
+      fechaEntrega: fechaInput(proyecto?.fechaEntrega) as never,
     },
   });
 
@@ -67,6 +96,10 @@ export function ProyectoFormDialog({
         descripcion: proyecto?.descripcion ?? "",
         rutaImpresion: proyecto?.rutaImpresion ?? "",
         cantidadProduccion: proyecto?.cantidadProduccion ?? undefined,
+        estado: proyecto?.estado ?? "PENDIENTE",
+        prioridad: proyecto?.prioridad ?? "MEDIA",
+        fechaInicio: fechaInput(proyecto?.fechaInicio) as never,
+        fechaEntrega: fechaInput(proyecto?.fechaEntrega) as never,
       });
     }
   }, [abierto, proyecto, reset]);
@@ -124,6 +157,88 @@ export function ProyectoFormDialog({
             )}
           </div>
 
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Estado</Label>
+              <Controller
+                name="estado"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {OPCIONES_ESTADO_PROYECTO.map((opcion) => (
+                        <SelectItem key={opcion.value} value={opcion.value}>
+                          {opcion.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.estado && (
+                <p className="text-xs text-destructive">
+                  {errors.estado.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Prioridad</Label>
+              <Controller
+                name="prioridad"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {OPCIONES_PRIORIDAD_PROYECTO.map((opcion) => (
+                        <SelectItem key={opcion.value} value={opcion.value}>
+                          {opcion.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.prioridad && (
+                <p className="text-xs text-destructive">
+                  {errors.prioridad.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="fechaInicio">Fecha de inicio</Label>
+              <Input id="fechaInicio" type="date" {...register("fechaInicio")} />
+              {errors.fechaInicio && (
+                <p className="text-xs text-destructive">
+                  {errors.fechaInicio.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="fechaEntrega">Fecha de entrega</Label>
+              <Input
+                id="fechaEntrega"
+                type="date"
+                {...register("fechaEntrega")}
+              />
+              {errors.fechaEntrega && (
+                <p className="text-xs text-destructive">
+                  {errors.fechaEntrega.message}
+                </p>
+              )}
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="cantidadProduccion">
               Cantidad de producción{" "}
@@ -137,7 +252,6 @@ export function ProyectoFormDialog({
               min={0}
               step={1}
               inputMode="numeric"
-              placeholder="Ej. 500"
               {...register("cantidadProduccion")}
             />
             <p className="text-xs text-muted-foreground">
@@ -155,7 +269,6 @@ export function ProyectoFormDialog({
             <Label htmlFor="rutaImpresion">Ruta de impresión</Label>
             <Input
               id="rutaImpresion"
-              placeholder="Ej. \\servidor\impresiones\proyecto"
               {...register("rutaImpresion")}
             />
             <p className="text-xs text-muted-foreground">

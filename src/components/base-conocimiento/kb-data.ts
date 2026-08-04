@@ -178,6 +178,52 @@ export const CATEGORIAS: Categoria[] = [
         ],
         etiquetas: ["bloqueo", "solo lectura", "proteger", "confirmación"],
       },
+      {
+        id: "estado-prioridad-proyecto",
+        titulo: "Estados y prioridad de proyectos",
+        resumen:
+          "Cada proyecto puede marcarse con estado, prioridad y fechas de planificación.",
+        puntos: [
+          "Usa el estado para indicar si un proyecto está pendiente, en producción, pausado, terminado o cancelado.",
+          "La prioridad ayuda a ordenar el trabajo: baja, media, alta o urgente.",
+          "Las fechas de inicio y entrega alimentan el Calendario de producción y permiten anticipar cargas de trabajo.",
+        ],
+        etiquetas: ["estado", "prioridad", "planificación", "entrega", "producción"],
+      },
+    ],
+  },
+  {
+    id: "calendario",
+    titulo: "Calendario de producción",
+    descripcion:
+      "Visualiza proyectos planificados por fecha de inicio y entrega.",
+    icono: "CalendarDays",
+    ilustracion: "dashboard",
+    articulos: [
+      {
+        id: "usar-calendario",
+        titulo: "Planificar proyectos en el calendario",
+        resumen:
+          "El calendario muestra los proyectos que tienen fecha de inicio o entrega configurada.",
+        puntos: [
+          "Edita un proyecto y define fecha de inicio, fecha de entrega, estado y prioridad.",
+          "En Calendario verás cada evento en el día correspondiente: Inicio o Entrega.",
+          "Pulsa sobre cualquier evento para abrir el detalle del proyecto y revisar impresiones, salidas y notas.",
+        ],
+        etiquetas: ["calendario", "producción", "inicio", "entrega", "planificar"],
+      },
+      {
+        id: "priorizar-produccion",
+        titulo: "Priorizar la producción",
+        resumen:
+          "Combina prioridad, estado y fechas para decidir qué revisar primero.",
+        puntos: [
+          "Los proyectos urgentes se identifican con una etiqueta diferenciada.",
+          "Un proyecto pausado o cancelado sigue visible si tiene fechas, para que no se pierda contexto de planificación.",
+          "La vista mensual ayuda a detectar semanas cargadas antes de que lleguen los vencimientos.",
+        ],
+        etiquetas: ["urgente", "estado", "prioridad", "vencimiento", "carga"],
+      },
     ],
   },
   {
@@ -456,6 +502,40 @@ export const CATEGORIAS: Categoria[] = [
     ],
   },
   {
+    id: "auditoria",
+    titulo: "Historial de auditoría",
+    descripcion:
+      "Revisa acciones administrativas y cambios críticos de la aplicación.",
+    icono: "History",
+    ilustracion: "seguridad",
+    articulos: [
+      {
+        id: "consultar-auditoria",
+        titulo: "Consultar el historial",
+        resumen:
+          "Auditoría registra acciones como crear, actualizar, eliminar, bloquear, aprobar o restaurar copias.",
+        puntos: [
+          "Entra en Auditoría para ver la fecha, acción, entidad, usuario y descripción de cada evento registrado.",
+          "Usa el buscador para localizar actividad por usuario, módulo, acción o descripción.",
+          "La auditoría ayuda a investigar cambios accidentales y a entender qué ocurrió antes de una incidencia.",
+        ],
+        etiquetas: ["auditoría", "historial", "seguridad", "usuario", "acción"],
+      },
+      {
+        id: "que-se-registra",
+        titulo: "Qué acciones quedan registradas",
+        resumen:
+          "Se registran acciones operativas importantes sin guardar contraseñas ni datos innecesarios.",
+        puntos: [
+          "Quedan registradas acciones sobre proyectos, impresiones, salidas, recogidas, inventario, tintas, papel, mapa, configuración y copias de seguridad.",
+          "Las restauraciones de backup aparecen en el historial porque reemplazan datos de la aplicación.",
+          "Los datos sensibles se evitan en la traza: el objetivo es trazabilidad, no duplicar información privada.",
+        ],
+        etiquetas: ["registro", "trazabilidad", "backup", "configuración", "privacidad"],
+      },
+    ],
+  },
+  {
     id: "configuracion",
     titulo: "Configuración y copias",
     descripcion:
@@ -481,7 +561,7 @@ export const CATEGORIAS: Categoria[] = [
         resumen:
           "Descarga un volcado completo de toda la aplicación y restáuralo cuando lo necesites.",
         puntos: [
-          "La copia incluye TODA la app: proyectos, impresiones, salidas, recogidas, inventario, tintas, papel, incidencias, configuración y usuarios.",
+          "La copia incluye TODA la app: proyectos, impresiones, salidas, recogidas, inventario, tintas, papel, incidencias, auditoría, configuración y usuarios.",
           "Descárgala en formato JSON y guárdala en un lugar seguro; es tu respaldo ante cualquier imprevisto.",
           "La restauración desde un archivo requiere una confirmación fuerte, ya que reemplaza los datos actuales. Solo el administrador puede descargar o restaurar.",
         ],

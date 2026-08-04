@@ -32,6 +32,21 @@ enum EstadoRecogida {
   DENEGADA
 }
 
+enum EstadoProyecto {
+  PENDIENTE
+  EN_PRODUCCION
+  PAUSADO
+  TERMINADO
+  CANCELADO
+}
+
+enum PrioridadProyecto {
+  BAJA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
 /// Usuario administrador. No existe registro público.
 model Usuario {
   id        String     @id @default(cuid())
@@ -42,6 +57,8 @@ model Usuario {
   activo    Boolean    @default(true)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+
+  auditorias Auditoria[]
 
   @@map("usuarios")
 }
@@ -57,6 +74,10 @@ model Proyecto {
   cantidadProduccion Int?
   /// Notas del proyecto en HTML enriquecido (editor WYSIWYG). Opcional.
   notas       String?
+  estado      EstadoProyecto    @default(PENDIENTE)
+  prioridad   PrioridadProyecto @default(MEDIA)
+  fechaInicio  DateTime? @db.Date
+  fechaEntrega DateTime? @db.Date
   /// Si está bloqueado, se resalta en el listado y requiere confirmación
   /// para desbloquearlo.
   bloqueado   Boolean  @default(false)
@@ -297,6 +318,27 @@ model Recogida {
 }
 
 /// Configuración global de la aplicación (registro único).
+model Auditoria {
+  id            String   @id @default(cuid())
+  accion        String
+  entidad       String
+  entidadId     String?
+  descripcion   String
+  detalle       Json?
+  usuarioId     String?
+  usuarioEmail  String?
+  usuarioNombre String?
+  createdAt     DateTime @default(now())
+
+  usuario Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([entidad])
+  @@index([accion])
+  @@index([usuarioId])
+  @@map("auditoria")
+}
+
 model Configuracion {
   id            String   @id @default(cuid())
   nombreEmpresa String   @default("ImpresiónWeb")

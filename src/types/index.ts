@@ -9,7 +9,10 @@ import type {
   UbicacionImpresion,
   ZonaMapa,
   EstadoIncidencia,
+  EstadoProyecto,
   EstadoRecogida,
+  PrioridadProyecto,
+  Auditoria,
 } from "@prisma/client";
 
 /**
@@ -90,5 +93,8 @@ export type {
   UbicacionImpresion,
   ZonaMapa,
   EstadoIncidencia,
+  EstadoProyecto,
   EstadoRecogida,
+  PrioridadProyecto,
+  Auditoria,
 };

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { impresionService } from "@/services/impresion.service";
 import { proyectoService } from "@/services/proyecto.service";
+import { auditoriaService } from "@/services/auditoria.service";
 import {
   impresionSchema,
   impresionEditSchema,
@@ -17,7 +18,7 @@ const MENSAJE_BLOQUEADO =
 /** Crea una impresión dentro de un proyecto. */
 export async function crearImpresion(input: unknown): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = impresionSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -31,7 +32,14 @@ export async function crearImpresion(input: unknown): Promise<ActionResult> {
       return { success: false, message: MENSAJE_BLOQUEADO };
     }
 
-    await impresionService.crear(parsed.data);
+    const impresion = await impresionService.crear(parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: "crear",
+      entidad: "impresion",
+      entidadId: impresion.id,
+      descripcion: `Impresión añadida: ${impresion.nombre}`,
+      detalle: parsed.data,
+    });
     revalidatePath(`/proyectos/${parsed.data.proyectoId}`);
     revalidatePath("/proyectos");
     revalidatePath("/dashboard");
@@ -48,7 +56,7 @@ export async function actualizarImpresion(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = impresionEditSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -67,6 +75,13 @@ export async function actualizarImpresion(
     }
 
     await impresionService.actualizar(id, parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: "actualizar",
+      entidad: "impresion",
+      entidadId: id,
+      descripcion: `Impresión actualizada: ${parsed.data.nombre}`,
+      detalle: parsed.data,
+    });
     revalidatePath(`/proyectos/${existente.proyectoId}`);
     revalidatePath("/dashboard");
     return { success: true, data: undefined, message: "Impresión actualizada." };
@@ -79,7 +94,7 @@ export async function actualizarImpresion(
 /** Elimina una impresión. */
 export async function eliminarImpresion(id: string): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const existente = await impresionService.obtener(id);
     if (!existente) {
       return { success: false, message: "La impresión no existe." };
@@ -89,6 +104,12 @@ export async function eliminarImpresion(id: string): Promise<ActionResult> {
     }
 
     await impresionService.eliminar(id);
+    await auditoriaService.registrar(session, {
+      accion: "eliminar",
+      entidad: "impresion",
+      entidadId: id,
+      descripcion: `Impresión eliminada: ${existente.nombre}`,
+    });
     revalidatePath(`/proyectos/${existente.proyectoId}`);
     revalidatePath("/proyectos");
     revalidatePath("/dashboard");

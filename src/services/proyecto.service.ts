@@ -15,7 +15,9 @@ export type OrdenProyecto =
   | "antiguo"
   | "titulo"
   | "impresiones"
-  | "tiempo";
+  | "tiempo"
+  | "prioridad"
+  | "entrega";
 
 /**
  * Servicio de Proyectos. Contiene la lógica de negocio: cálculo de métricas,
@@ -49,6 +51,8 @@ export const proyectoService = {
         ? { createdAt: "asc" }
         : opciones.orden === "titulo"
           ? { titulo: "asc" }
+          : opciones.orden === "entrega"
+            ? { fechaEntrega: { sort: "asc", nulls: "last" } }
           : { createdAt: "desc" };
 
     const total = await proyectoRepository.contar(where);
@@ -56,7 +60,9 @@ export const proyectoService = {
     // Cuando se ordena por métricas, traemos todo el conjunto filtrado y
     // ordenamos/paginamos en memoria.
     const ordenPorMetrica =
-      opciones.orden === "impresiones" || opciones.orden === "tiempo";
+      opciones.orden === "impresiones" ||
+      opciones.orden === "tiempo" ||
+      opciones.orden === "prioridad";
 
     const registros = await proyectoRepository.listar({
       where,
@@ -69,12 +75,20 @@ export const proyectoService = {
       this.calcularMetricas(p),
     );
 
-    if (ordenPorMetrica) {
+    if (opciones.orden === "impresiones" || opciones.orden === "tiempo") {
       items.sort((a, b) =>
         opciones.orden === "impresiones"
           ? b.totalImpresiones - a.totalImpresiones
           : b.tiempoTotal - a.tiempoTotal,
       );
+    }
+
+    if (opciones.orden === "prioridad") {
+      const peso = { URGENTE: 4, ALTA: 3, MEDIA: 2, BAJA: 1 };
+      items.sort((a, b) => peso[b.prioridad] - peso[a.prioridad]);
+    }
+
+    if (ordenPorMetrica) {
       items = items.slice((pagina - 1) * tamano, pagina * tamano);
     }
 
@@ -95,6 +109,10 @@ export const proyectoService = {
     rutaImpresion: string | null;
     cantidadProduccion: number | null;
     notas: string | null;
+    estado: ProyectoConMetricas["estado"];
+    prioridad: ProyectoConMetricas["prioridad"];
+    fechaInicio: Date | null;
+    fechaEntrega: Date | null;
     bloqueado: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -116,6 +134,10 @@ export const proyectoService = {
       rutaImpresion: proyecto.rutaImpresion,
       cantidadProduccion: proyecto.cantidadProduccion,
       notas: proyecto.notas,
+      estado: proyecto.estado,
+      prioridad: proyecto.prioridad,
+      fechaInicio: proyecto.fechaInicio,
+      fechaEntrega: proyecto.fechaEntrega,
       bloqueado: proyecto.bloqueado,
       createdAt: proyecto.createdAt,
       updatedAt: proyecto.updatedAt,
@@ -153,6 +175,10 @@ export const proyectoService = {
       descripcion: data.descripcion || null,
       rutaImpresion: data.rutaImpresion || null,
       cantidadProduccion: data.cantidadProduccion ?? null,
+      estado: data.estado,
+      prioridad: data.prioridad,
+      fechaInicio: data.fechaInicio ?? null,
+      fechaEntrega: data.fechaEntrega ?? null,
     });
   },
 
@@ -162,6 +188,10 @@ export const proyectoService = {
       descripcion: data.descripcion || null,
       rutaImpresion: data.rutaImpresion || null,
       cantidadProduccion: data.cantidadProduccion ?? null,
+      estado: data.estado,
+      prioridad: data.prioridad,
+      fechaInicio: data.fechaInicio ?? null,
+      fechaEntrega: data.fechaEntrega ?? null,
     });
   },
 
@@ -195,6 +225,19 @@ export const proyectoService = {
     return prisma.proyecto.findMany({
       select: { id: true, titulo: true },
       orderBy: { titulo: "asc" },
+    });
+  },
+
+  listarPlanificados() {
+    return prisma.proyecto.findMany({
+      where: {
+        OR: [{ fechaInicio: { not: null } }, { fechaEntrega: { not: null } }],
+      },
+      orderBy: [
+        { fechaInicio: "asc" },
+        { fechaEntrega: "asc" },
+        { prioridad: "desc" },
+      ],
     });
   },
 };

@@ -42,6 +42,7 @@ export const backupService = {
     const estanciasMapa = await prisma.estanciaMapa.findMany();
     const zonasMapa = await prisma.zonaMapa.findMany();
     const ubicacionesImpresion = await prisma.ubicacionImpresion.findMany();
+    const auditoria = await prisma.auditoria.findMany();
     const configuracion = await prisma.configuracion.findMany();
     const modulosConfiguracion = await prisma.moduloConfiguracion.findMany();
 
@@ -64,6 +65,7 @@ export const backupService = {
         estanciasMapa,
         zonasMapa,
         ubicacionesImpresion,
+        auditoria,
         configuracion,
         modulosConfiguracion,
       },
@@ -78,7 +80,12 @@ export const backupService = {
    */
   async restaurar(datos: Record<string, unknown[]>): Promise<number> {
     const usuarios = conFechas(datos.usuarios as never, ["createdAt", "updatedAt"]);
-    const proyectos = conFechas(datos.proyectos as never, ["createdAt", "updatedAt"]);
+    const proyectos = conFechas(datos.proyectos as never, [
+      "createdAt",
+      "updatedAt",
+      "fechaInicio",
+      "fechaEntrega",
+    ]);
     const impresiones = conFechas(datos.impresiones as never, [
       "fecha",
       "createdAt",
@@ -124,6 +131,7 @@ export const backupService = {
       datos.ubicacionesImpresion as never,
       ["createdAt", "updatedAt"],
     );
+    const auditoria = conFechas(datos.auditoria as never, ["createdAt"]);
     const configuracion = conFechas(datos.configuracion as never, ["updatedAt"]);
     const modulosConfiguracion = conFechas(
       datos.modulosConfiguracion as never,
@@ -140,6 +148,7 @@ export const backupService = {
         await tx.salida.deleteMany();
         await tx.recogida.deleteMany();
         await tx.zonaMapa.deleteMany();
+        await tx.auditoria.deleteMany();
         // 2) Borrar padres.
         await tx.estanciaMapa.deleteMany();
         await tx.tinta.deleteMany();
@@ -188,6 +197,8 @@ export const backupService = {
           await tx.lecturaTinta.createMany({ data: lecturasTinta as never });
         if (lecturasPapel.length)
           await tx.lecturaPapel.createMany({ data: lecturasPapel as never });
+        if (auditoria.length)
+          await tx.auditoria.createMany({ data: auditoria as never });
       },
       { timeout: 30000 },
     );
@@ -207,6 +218,7 @@ export const backupService = {
       estanciasMapa.length +
       zonasMapa.length +
       ubicacionesImpresion.length +
+      auditoria.length +
       configuracion.length +
       modulosConfiguracion.length
     );

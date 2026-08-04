@@ -1,7 +1,18 @@
 import type { Metadata } from "next";
-import { normalizarTamanoPagina } from "@/lib/constants";
+import {
+  ESTADOS_PROYECTO,
+  PRIORIDADES_PROYECTO,
+  normalizarTamanoPagina,
+} from "@/lib/constants";
 import Link from "next/link";
-import { Plus, FolderKanban, Layers, Clock, Lock } from "lucide-react";
+import {
+  Plus,
+  FolderKanban,
+  Layers,
+  Clock,
+  Lock,
+  CalendarDays,
+} from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
 import { ModuloDesactivado } from "@/components/shared/modulo-desactivado";
@@ -26,6 +37,7 @@ import { proyectoService, type OrdenProyecto } from "@/services/proyecto.service
 import { getSession } from "@/lib/session";
 import { obtenerEstadoModulo } from "@/lib/module-guard";
 import { formatearFecha, formatearTiempo, formatearNumero } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Proyectos" };
 
@@ -35,6 +47,8 @@ const OPCIONES_ORDEN = [
   { value: "titulo", label: "Título (A-Z)" },
   { value: "impresiones", label: "Más impresiones" },
   { value: "tiempo", label: "Más tiempo" },
+  { value: "prioridad", label: "Más prioridad" },
+  { value: "entrega", label: "Entrega próxima" },
 ];
 
 export default async function ProyectosPage({
@@ -111,10 +125,12 @@ export default async function ProyectosPage({
             <TableHeader>
               <TableRow>
                 <TableHead>Proyecto</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead>Prioridad</TableHead>
                 <TableHead className="text-center">Impresiones</TableHead>
                 <TableHead className="text-center">Cantidad</TableHead>
                 <TableHead className="text-center">Tiempo</TableHead>
-                <TableHead>Creado</TableHead>
+                <TableHead>Entrega</TableHead>
                 <TableHead className="w-[60px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -148,6 +164,28 @@ export default async function ProyectosPage({
                       )}
                     </Link>
                   </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="secondary"
+                      className={cn(
+                        "whitespace-nowrap",
+                        ESTADOS_PROYECTO[p.estado].color,
+                      )}
+                    >
+                      {ESTADOS_PROYECTO[p.estado].label}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="secondary"
+                      className={cn(
+                        "whitespace-nowrap",
+                        PRIORIDADES_PROYECTO[p.prioridad].color,
+                      )}
+                    >
+                      {PRIORIDADES_PROYECTO[p.prioridad].label}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-center">
                     <Badge variant="secondary" className="gap-1">
                       <Layers className="h-3 w-3" />
@@ -170,7 +208,14 @@ export default async function ProyectosPage({
                     </span>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {formatearFecha(p.createdAt)}
+                    {p.fechaEntrega ? (
+                      <span className="inline-flex items-center gap-1">
+                        <CalendarDays className="h-3 w-3" />
+                        {formatearFecha(p.fechaEntrega)}
+                      </span>
+                    ) : (
+                      "Sin fecha"
+                    )}
                   </TableCell>
                   <TableCell>
                     {!esLector && <ProyectoActions proyecto={p} />}

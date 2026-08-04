@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { inventarioService } from "@/services/inventario.service";
+import { auditoriaService } from "@/services/auditoria.service";
 import { inventarioSchema } from "@/validators/inventario.validator";
 import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
@@ -10,7 +11,7 @@ import type { ActionResult } from "@/types";
 /** Crea un nuevo artículo de inventario. */
 export async function crearInventario(input: unknown): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = inventarioSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -20,7 +21,14 @@ export async function crearInventario(input: unknown): Promise<ActionResult> {
       };
     }
 
-    await inventarioService.crear(parsed.data);
+    const item = await inventarioService.crear(parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: "crear",
+      entidad: "inventario",
+      entidadId: item.id,
+      descripcion: `Artículo añadido: ${item.nombre}`,
+      detalle: parsed.data,
+    });
     revalidatePath("/inventario");
     return { success: true, data: undefined, message: "Artículo añadido." };
   } catch (error) {
@@ -35,7 +43,7 @@ export async function actualizarInventario(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = inventarioSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -51,6 +59,13 @@ export async function actualizarInventario(
     }
 
     await inventarioService.actualizar(id, parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: "actualizar",
+      entidad: "inventario",
+      entidadId: id,
+      descripcion: `Artículo actualizado: ${parsed.data.nombre}`,
+      detalle: parsed.data,
+    });
     revalidatePath("/inventario");
     return { success: true, data: undefined, message: "Artículo actualizado." };
   } catch (error) {
@@ -62,13 +77,19 @@ export async function actualizarInventario(
 /** Elimina un artículo de inventario. */
 export async function eliminarInventario(id: string): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const existente = await inventarioService.obtener(id);
     if (!existente) {
       return { success: false, message: "El artículo no existe." };
     }
 
     await inventarioService.eliminar(id);
+    await auditoriaService.registrar(session, {
+      accion: "eliminar",
+      entidad: "inventario",
+      entidadId: id,
+      descripcion: `Artículo eliminado: ${existente.nombre}`,
+    });
     revalidatePath("/inventario");
     return { success: true, data: undefined, message: "Artículo eliminado." };
   } catch (error) {

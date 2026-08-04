@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { recogidaService } from "@/services/recogida.service";
 import { configuracionService } from "@/services/configuracion.service";
+import { auditoriaService } from "@/services/auditoria.service";
 import {
   crearRecogidaSchema,
   solicitarRecogidaSchema,
@@ -64,7 +65,7 @@ export async function solicitarRecogida(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAuth();
+    const session = await requireAuth();
     const parsed = solicitarRecogidaSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -74,11 +75,23 @@ export async function solicitarRecogida(
       };
     }
 
-    await recogidaService.crear({
+    const recogida = await recogidaService.crear({
       nbi: parsed.data.nbi,
       nombre: parsed.data.nombre,
       unidades: parsed.data.unidades,
       proyectoId: parsed.data.proyectoId,
+    });
+    await auditoriaService.registrar(session, {
+      accion: "crear",
+      entidad: "recogida",
+      entidadId: recogida.id,
+      descripcion: `Recogida solicitada desde la app: ${recogida.nombre}`,
+      detalle: {
+        nbi: parsed.data.nbi,
+        nombre: parsed.data.nombre,
+        unidades: parsed.data.unidades,
+        proyectoId: parsed.data.proyectoId,
+      },
     });
 
     revalidatePath("/recogidas");
@@ -96,11 +109,18 @@ export async function solicitarRecogida(
 /** Aprueba una recogida pendiente (genera salida y descuenta). */
 export async function aprobarRecogida(id: string): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const resultado = await recogidaService.aprobar(id);
     if (!resultado.ok) {
       return { success: false, message: resultado.error };
     }
+    await auditoriaService.registrar(session, {
+      accion: "aprobar",
+      entidad: "recogida",
+      entidadId: id,
+      descripcion: "Recogida aprobada y convertida en salida.",
+      detalle: { proyectoId: resultado.proyectoId },
+    });
 
     revalidatePath("/recogidas");
     revalidatePath("/salidas");
@@ -120,11 +140,17 @@ export async function aprobarRecogida(id: string): Promise<ActionResult> {
 /** Deniega una recogida pendiente (no descuenta nada). */
 export async function denegarRecogida(id: string): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const resultado = await recogidaService.denegar(id);
     if (!resultado.ok) {
       return { success: false, message: resultado.error };
     }
+    await auditoriaService.registrar(session, {
+      accion: "denegar",
+      entidad: "recogida",
+      entidadId: id,
+      descripcion: "Recogida denegada.",
+    });
 
     revalidatePath("/recogidas");
     return { success: true, data: undefined, message: "Recogida denegada." };
@@ -137,8 +163,13 @@ export async function denegarRecogida(id: string): Promise<ActionResult> {
 /** Regenera el token del enlace del QR (invalida el QR anterior). */
 export async function regenerarTokenRecogida(): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     await configuracionService.regenerarTokenRecogida();
+    await auditoriaService.registrar(session, {
+      accion: "regenerar",
+      entidad: "recogida_qr",
+      descripcion: "Token del QR de recogidas regenerado.",
+    });
     revalidatePath("/recogidas");
     return {
       success: true,

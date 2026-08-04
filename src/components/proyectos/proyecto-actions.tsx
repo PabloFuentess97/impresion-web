@@ -39,6 +39,10 @@ export function ProyectoActions({
     | "descripcion"
     | "rutaImpresion"
     | "cantidadProduccion"
+    | "estado"
+    | "prioridad"
+    | "fechaInicio"
+    | "fechaEntrega"
     | "bloqueado"
   >;
 }) {

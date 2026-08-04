@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { normalizarTamanoPagina } from "@/lib/constants";
+import {
+  ESTADOS_PROYECTO,
+  PRIORIDADES_PROYECTO,
+  normalizarTamanoPagina,
+} from "@/lib/constants";
 import { notFound } from "next/navigation";
 import {
   Plus,
@@ -13,6 +17,8 @@ import {
   FolderInput,
   Target,
   StickyNote,
+  CalendarDays,
+  Flag,
 } from "lucide-react";
 
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
@@ -49,6 +55,7 @@ import {
   formatearTiempo,
   formatearNumero,
 } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 export async function generateMetadata({
   params,
@@ -153,6 +160,57 @@ export default async function ProyectoDetallePage({
           <Lock className="h-3.5 w-3.5" /> Proyecto bloqueado · solo lectura
         </Badge>
       )}
+
+      <Card className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium uppercase text-muted-foreground">
+            Estado
+          </p>
+          <Badge
+            variant="secondary"
+            className={cn("w-fit", ESTADOS_PROYECTO[proyecto.estado].color)}
+          >
+            {ESTADOS_PROYECTO[proyecto.estado].label}
+          </Badge>
+        </div>
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium uppercase text-muted-foreground">
+            Prioridad
+          </p>
+          <Badge
+            variant="secondary"
+            className={cn(
+              "w-fit gap-1",
+              PRIORIDADES_PROYECTO[proyecto.prioridad].color,
+            )}
+          >
+            <Flag className="h-3 w-3" />
+            {PRIORIDADES_PROYECTO[proyecto.prioridad].label}
+          </Badge>
+        </div>
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium uppercase text-muted-foreground">
+            Inicio
+          </p>
+          <p className="inline-flex items-center gap-1.5 text-sm text-foreground">
+            <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
+            {proyecto.fechaInicio
+              ? formatearFecha(proyecto.fechaInicio)
+              : "Sin fecha"}
+          </p>
+        </div>
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium uppercase text-muted-foreground">
+            Entrega
+          </p>
+          <p className="inline-flex items-center gap-1.5 text-sm text-foreground">
+            <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
+            {proyecto.fechaEntrega
+              ? formatearFecha(proyecto.fechaEntrega)
+              : "Sin fecha"}
+          </p>
+        </div>
+      </Card>
 
       {proyecto.descripcion && (
         <Card className="p-5">

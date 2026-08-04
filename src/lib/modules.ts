@@ -3,12 +3,14 @@ export const CLAVES_MODULO = [
   "proyectos",
   "salidas",
   "recogidas",
+  "calendario",
   "mapa",
   "inventario",
   "tintas",
   "incidencias",
   "reportes",
   "base-conocimiento",
+  "auditoria",
 ] as const;
 
 export type ClaveModulo = (typeof CLAVES_MODULO)[number];
@@ -46,6 +48,12 @@ export const MODULOS_ACTIVABLES: ModuloDefinicion[] = [
     descripcion: "Solicitudes por QR o lector pendientes de aprobación.",
   },
   {
+    clave: "calendario",
+    label: "Calendario",
+    href: "/calendario",
+    descripcion: "Planificación visual de producción por fechas.",
+  },
+  {
     clave: "mapa",
     label: "Mapa visual",
     href: "/mapa",
@@ -80,6 +88,12 @@ export const MODULOS_ACTIVABLES: ModuloDefinicion[] = [
     label: "Base de conocimiento",
     href: "/base-conocimiento",
     descripcion: "Centro privado de ayuda y guías de uso.",
+  },
+  {
+    clave: "auditoria",
+    label: "Auditoría",
+    href: "/auditoria",
+    descripcion: "Historial de acciones críticas realizadas en la aplicación.",
   },
 ];
 

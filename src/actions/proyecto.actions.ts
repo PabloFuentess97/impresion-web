@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { proyectoService } from "@/services/proyecto.service";
+import { auditoriaService } from "@/services/auditoria.service";
 import {
   proyectoSchema,
   notasProyectoSchema,
@@ -15,7 +16,7 @@ export async function crearProyecto(
   input: unknown,
 ): Promise<ActionResult<{ id: string }>> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = proyectoSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -26,6 +27,13 @@ export async function crearProyecto(
     }
 
     const proyecto = await proyectoService.crear(parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: "crear",
+      entidad: "proyecto",
+      entidadId: proyecto.id,
+      descripcion: `Proyecto creado: ${proyecto.titulo}`,
+      detalle: parsed.data,
+    });
     revalidatePath("/proyectos");
     revalidatePath("/dashboard");
     return {
@@ -45,7 +53,7 @@ export async function actualizarProyecto(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = proyectoSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -67,6 +75,13 @@ export async function actualizarProyecto(
     }
 
     await proyectoService.actualizar(id, parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: "actualizar",
+      entidad: "proyecto",
+      entidadId: id,
+      descripcion: `Proyecto actualizado: ${parsed.data.titulo}`,
+      detalle: parsed.data,
+    });
     revalidatePath("/proyectos");
     revalidatePath(`/proyectos/${id}`);
     revalidatePath("/dashboard");
@@ -83,7 +98,7 @@ export async function guardarNotasProyecto(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = notasProyectoSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -105,6 +120,12 @@ export async function guardarNotasProyecto(
     }
 
     await proyectoService.guardarNotas(id, parsed.data.notas ?? "");
+    await auditoriaService.registrar(session, {
+      accion: "actualizar_notas",
+      entidad: "proyecto",
+      entidadId: id,
+      descripcion: `Notas actualizadas: ${existente.titulo}`,
+    });
     revalidatePath(`/proyectos/${id}`);
     return { success: true, data: undefined, message: "Notas guardadas." };
   } catch (error) {
@@ -119,13 +140,20 @@ export async function alternarBloqueoProyecto(
   bloqueado: boolean,
 ): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const existente = await proyectoService.obtener(id);
     if (!existente) {
       return { success: false, message: "El proyecto no existe." };
     }
 
     await proyectoService.alternarBloqueo(id, bloqueado);
+    await auditoriaService.registrar(session, {
+      accion: bloqueado ? "bloquear" : "desbloquear",
+      entidad: "proyecto",
+      entidadId: id,
+      descripcion: `${bloqueado ? "Proyecto bloqueado" : "Proyecto desbloqueado"}: ${existente.titulo}`,
+      detalle: { bloqueado },
+    });
     revalidatePath("/proyectos");
     revalidatePath(`/proyectos/${id}`);
     return {
@@ -145,7 +173,7 @@ export async function alternarBloqueoProyecto(
 /** Elimina un proyecto y todas sus impresiones (cascada). */
 export async function eliminarProyecto(id: string): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const existente = await proyectoService.obtener(id);
     if (!existente) {
       return { success: false, message: "El proyecto no existe." };
@@ -158,6 +186,12 @@ export async function eliminarProyecto(id: string): Promise<ActionResult> {
     }
 
     await proyectoService.eliminar(id);
+    await auditoriaService.registrar(session, {
+      accion: "eliminar",
+      entidad: "proyecto",
+      entidadId: id,
+      descripcion: `Proyecto eliminado: ${existente.titulo}`,
+    });
     revalidatePath("/proyectos");
     revalidatePath("/dashboard");
     return { success: true, data: undefined, message: "Proyecto eliminado." };

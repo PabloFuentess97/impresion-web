@@ -31,12 +31,15 @@ export const authConfig = {
         "/proyectos",
         "/salidas",
         "/recogidas",
+        "/calendario",
         "/mapa",
         "/inventario",
         "/tintas",
         "/incidencias",
         "/reportes",
+        "/base-conocimiento",
         "/configuracion",
+        "/auditoria",
       ];
       const esRutaPrivada = rutasPrivadas.some((ruta) =>
         nextUrl.pathname.startsWith(ruta),

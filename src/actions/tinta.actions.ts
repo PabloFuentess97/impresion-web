@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { tintaService } from "@/services/tinta.service";
+import { auditoriaService } from "@/services/auditoria.service";
 import {
   configurarTintasSchema,
   actualizarTintaSchema,
@@ -14,7 +15,7 @@ import type { ActionResult } from "@/types";
 /** Configura el número de tintas activas (4, 6 o 9). */
 export async function configurarTintas(input: unknown): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = configurarTintasSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -25,6 +26,12 @@ export async function configurarTintas(input: unknown): Promise<ActionResult> {
     }
 
     await tintaService.configurar(parsed.data.numero);
+    await auditoriaService.registrar(session, {
+      accion: "configurar",
+      entidad: "tinta",
+      descripcion: `Configuradas ${parsed.data.numero} tintas.`,
+      detalle: parsed.data,
+    });
     revalidatePath("/tintas");
     return {
       success: true,
@@ -42,7 +49,7 @@ export async function actualizarPorcentajeTinta(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = actualizarTintaSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -53,6 +60,13 @@ export async function actualizarPorcentajeTinta(
     }
 
     await tintaService.actualizarPorcentaje(parsed.data.id, parsed.data.porcentaje);
+    await auditoriaService.registrar(session, {
+      accion: "actualizar",
+      entidad: "tinta",
+      entidadId: parsed.data.id,
+      descripcion: "Nivel de tinta actualizado.",
+      detalle: parsed.data,
+    });
     revalidatePath("/tintas");
     return {
       success: true,
@@ -68,7 +82,7 @@ export async function actualizarPorcentajeTinta(
 /** Edita el nombre y color de una tinta. */
 export async function editarTinta(input: unknown): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = editarTintaSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -83,6 +97,13 @@ export async function editarTinta(input: unknown): Promise<ActionResult> {
       parsed.data.nombre,
       parsed.data.color || undefined,
     );
+    await auditoriaService.registrar(session, {
+      accion: "actualizar",
+      entidad: "tinta",
+      entidadId: parsed.data.id,
+      descripcion: `Tinta actualizada: ${parsed.data.nombre}`,
+      detalle: { nombre: parsed.data.nombre, color: parsed.data.color },
+    });
     revalidatePath("/tintas");
     return { success: true, data: undefined, message: "Tinta actualizada." };
   } catch (error) {

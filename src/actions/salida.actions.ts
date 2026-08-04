@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { salidaService } from "@/services/salida.service";
 import { proyectoService } from "@/services/proyecto.service";
+import { auditoriaService } from "@/services/auditoria.service";
 import { salidaSchema, salidaEditSchema } from "@/validators/salida.validator";
 import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
@@ -14,7 +15,7 @@ const MENSAJE_BLOQUEADO =
 /** Crea una nueva salida. */
 export async function crearSalida(input: unknown): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = salidaSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -28,7 +29,14 @@ export async function crearSalida(input: unknown): Promise<ActionResult> {
       return { success: false, message: MENSAJE_BLOQUEADO };
     }
 
-    await salidaService.crear(parsed.data);
+    const salida = await salidaService.crear(parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: "crear",
+      entidad: "salida",
+      entidadId: salida.id,
+      descripcion: `Salida registrada: ${salida.destino}`,
+      detalle: parsed.data,
+    });
     revalidatePath("/salidas");
     revalidatePath(`/proyectos/${parsed.data.proyectoId}`);
     revalidatePath("/dashboard");
@@ -45,7 +53,7 @@ export async function actualizarSalida(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const parsed = salidaEditSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -64,6 +72,13 @@ export async function actualizarSalida(
     }
 
     await salidaService.actualizar(id, parsed.data);
+    await auditoriaService.registrar(session, {
+      accion: "actualizar",
+      entidad: "salida",
+      entidadId: id,
+      descripcion: `Salida actualizada: ${parsed.data.destino}`,
+      detalle: parsed.data,
+    });
     revalidatePath("/salidas");
     revalidatePath(`/proyectos/${existente.proyectoId}`);
     return { success: true, data: undefined, message: "Salida actualizada." };
@@ -76,7 +91,7 @@ export async function actualizarSalida(
 /** Elimina una salida. */
 export async function eliminarSalida(id: string): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const existente = await salidaService.obtener(id);
     if (!existente) {
       return { success: false, message: "La salida no existe." };
@@ -86,6 +101,12 @@ export async function eliminarSalida(id: string): Promise<ActionResult> {
     }
 
     await salidaService.eliminar(id);
+    await auditoriaService.registrar(session, {
+      accion: "eliminar",
+      entidad: "salida",
+      entidadId: id,
+      descripcion: `Salida eliminada: ${existente.destino}`,
+    });
     revalidatePath("/salidas");
     revalidatePath(`/proyectos/${existente.proyectoId}`);
     revalidatePath("/dashboard");

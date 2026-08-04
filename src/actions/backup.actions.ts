@@ -3,6 +3,7 @@
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { backupService } from "@/services/backup.service";
+import { auditoriaService } from "@/services/auditoria.service";
 import { usuarioRepository } from "@/repositories/usuario.repository";
 import { requireAdmin } from "@/lib/session";
 import { logger } from "@/lib/logger";
@@ -24,6 +25,7 @@ const TABLAS = [
   "estanciasMapa",
   "zonasMapa",
   "ubicacionesImpresion",
+  "auditoria",
   "configuracion",
   "modulosConfiguracion",
 ];
@@ -100,6 +102,12 @@ export async function restaurarBackup(
     const total = await backupService.restaurar(
       registro as Record<string, unknown[]>,
     );
+    await auditoriaService.registrar(session, {
+      accion: "restaurar_backup",
+      entidad: "backup",
+      descripcion: `Copia de seguridad restaurada: ${total} registros.`,
+      detalle: { total },
+    });
 
     revalidatePath("/", "layout");
     return {
