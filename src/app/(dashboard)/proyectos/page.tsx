@@ -12,6 +12,7 @@ import {
   Clock,
   Lock,
   CalendarDays,
+  FileBarChart,
 } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
@@ -77,15 +78,22 @@ export default async function ProyectosPage({
         titulo="Proyectos"
         descripcion="Gestiona tus proyectos de impresión."
         accion={
-          esLector ? undefined : (
-            <ProyectoFormDialog
-              trigger={
-                <Button>
-                  <Plus className="h-4 w-4" /> Nuevo proyecto
-                </Button>
-              }
-            />
-          )
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="outline" asChild>
+              <Link href="/proyectos/reporte">
+                <FileBarChart className="h-4 w-4" /> Reporte
+              </Link>
+            </Button>
+            {!esLector && (
+              <ProyectoFormDialog
+                trigger={
+                  <Button>
+                    <Plus className="h-4 w-4" /> Nuevo proyecto
+                  </Button>
+                }
+              />
+            )}
+          </div>
         }
       />
 
@@ -129,6 +137,8 @@ export default async function ProyectosPage({
                 <TableHead>Prioridad</TableHead>
                 <TableHead className="text-center">Impresiones</TableHead>
                 <TableHead className="text-center">Cantidad</TableHead>
+                <TableHead className="text-center">Salidas</TableHead>
+                <TableHead className="text-center">Restantes</TableHead>
                 <TableHead className="text-center">Tiempo</TableHead>
                 <TableHead>Entrega</TableHead>
                 <TableHead className="w-[60px]"></TableHead>
@@ -199,6 +209,27 @@ export default async function ProyectosPage({
                         {" / "}
                         {formatearNumero(p.cantidadProduccion)}
                       </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center text-sm text-muted-foreground">
+                    {formatearNumero(p.cantidadSalidas)}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {p.unidadesRestantes == null ? (
+                      <span className="text-sm text-muted-foreground">
+                        Sin objetivo
+                      </span>
+                    ) : (
+                      <Badge
+                        variant="secondary"
+                        className={
+                          p.unidadesRestantes === 0
+                            ? "border border-emerald-200 bg-emerald-100 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-400"
+                            : "border border-indigo-200 bg-indigo-100 text-indigo-700 dark:border-indigo-500/20 dark:bg-indigo-500/15 dark:text-indigo-400"
+                        }
+                      >
+                        {formatearNumero(p.unidadesRestantes)}
+                      </Badge>
                     )}
                   </TableCell>
                   <TableCell className="text-center">

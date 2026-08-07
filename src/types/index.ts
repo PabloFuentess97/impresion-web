@@ -33,6 +33,9 @@ export interface ProyectoConMetricas extends Proyecto {
   totalImpresiones: number;
   cantidadTotal: number;
   tiempoTotal: number;
+  totalSalidas: number;
+  cantidadSalidas: number;
+  unidadesRestantes: number | null;
 }
 
 /** Proyecto con sus impresiones y métricas (vista de detalle). */
@@ -41,6 +44,9 @@ export interface ProyectoDetalle extends Proyecto {
   totalImpresiones: number;
   cantidadTotal: number;
   tiempoTotal: number;
+  totalSalidas: number;
+  cantidadSalidas: number;
+  unidadesRestantes: number | null;
 }
 
 /** Estadísticas del dashboard. */

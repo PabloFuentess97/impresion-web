@@ -167,6 +167,18 @@ export const CATEGORIAS: Categoria[] = [
         etiquetas: ["impresión", "cantidad", "tiempo", "registro"],
       },
       {
+        id: "unidades-restantes",
+        titulo: "Entender las unidades restantes",
+        resumen:
+          "El proyecto puede mostrar cuántas unidades quedan después de registrar salidas.",
+        puntos: [
+          "Si un proyecto tiene un objetivo de 1000 unidades y se registran salidas por 100, la app muestra 900 unidades restantes.",
+          "Las unidades restantes se calculan con el objetivo del proyecto menos las unidades que han salido.",
+          "Este dato aparece en el listado de proyectos, en el detalle y en el reporte global de proyectos.",
+        ],
+        etiquetas: ["restantes", "objetivo", "salidas", "unidades", "proyecto"],
+      },
+      {
         id: "bloqueo-proyectos",
         titulo: "Bloquear proyectos (solo lectura)",
         resumen:
@@ -498,6 +510,18 @@ export const CATEGORIAS: Categoria[] = [
           "También puedes imprimir el reporte directamente desde el navegador.",
         ],
         etiquetas: ["exportar", "pdf", "excel", "imprimir", "descargar"],
+      },
+      {
+        id: "reporte-global-proyectos",
+        titulo: "Reporte global de proyectos",
+        resumen:
+          "Desde Proyectos puedes sacar un informe completo de todos los proyectos con impresiones, estadísticas, salidas y restantes.",
+        puntos: [
+          "Pulsa Reporte en el listado de Proyectos para abrir el resumen global.",
+          "El informe muestra objetivo, unidades impresas, tiempo total, unidades salidas y unidades restantes por cada proyecto.",
+          "Puedes imprimirlo o exportarlo a PDF y Excel para revisarlo fuera de la app.",
+        ],
+        etiquetas: ["proyectos", "reporte", "pdf", "excel", "salidas", "restantes"],
       },
     ],
   },

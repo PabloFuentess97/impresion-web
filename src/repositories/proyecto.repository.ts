@@ -27,16 +27,20 @@ export const proyectoRepository = {
         impresiones: {
           select: { id: true, cantidad: true, tiempo: true },
         },
+        salidas: {
+          select: { id: true, cantidad: true },
+        },
       },
     });
   },
 
-  /** Obtiene un proyecto por id con todas sus impresiones. */
+  /** Obtiene un proyecto por id con sus impresiones y salidas para métricas. */
   obtenerConImpresiones(id: string) {
     return prisma.proyecto.findUnique({
       where: { id },
       include: {
         impresiones: { orderBy: { fecha: "desc" } },
+        salidas: { select: { id: true, cantidad: true } },
       },
     });
   },

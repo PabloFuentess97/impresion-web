@@ -19,6 +19,7 @@ import {
   StickyNote,
   CalendarDays,
   Flag,
+  Boxes,
 } from "lucide-react";
 
 import { Breadcrumbs } from "@/components/shared/breadcrumbs";
@@ -94,7 +95,8 @@ export default async function ProyectoDetallePage({
   if (!proyecto) notFound();
 
   const proyectosSelect = [{ id: proyecto.id, titulo: proyecto.titulo }];
-  const totalSalidas = salidas.reduce((a, s) => a + s.cantidad, 0);
+  const cantidadSalidas = proyecto.cantidadSalidas;
+  const unidadesRestantes = proyecto.unidadesRestantes;
   const tabInicial = query.tab === "salidas" || query.tab === "notas" ? query.tab : "impresiones";
   const impresionesPagina = Number(query.impresionesPagina) || 1;
   const impresionesTamano = normalizarTamanoPagina(query.impresionesTamano);
@@ -263,6 +265,19 @@ export default async function ProyectoDetallePage({
                   )}
                 </p>
               </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Salidas:{" "}
+                <span className="font-medium text-foreground">
+                  {formatearNumero(cantidadSalidas)}
+                </span>
+                {" · "}
+                Restantes:{" "}
+                <span className="font-medium text-foreground">
+                  {unidadesRestantes == null
+                    ? "Sin objetivo"
+                    : formatearNumero(unidadesRestantes)}
+                </span>
+              </p>
               <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-muted">
                 <div
                   className={
@@ -284,7 +299,7 @@ export default async function ProyectoDetallePage({
       )}
 
       {/* Métricas del proyecto */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard
           titulo="Total impresiones"
           valor={formatearNumero(proyecto.totalImpresiones)}
@@ -304,9 +319,19 @@ export default async function ProyectoDetallePage({
         />
         <StatCard
           titulo="Unidades enviadas"
-          valor={formatearNumero(totalSalidas)}
+          valor={formatearNumero(cantidadSalidas)}
           icono={<Truck />}
           acento="warning"
+        />
+        <StatCard
+          titulo="Unidades restantes"
+          valor={
+            unidadesRestantes == null
+              ? "Sin objetivo"
+              : formatearNumero(unidadesRestantes)
+          }
+          icono={<Boxes />}
+          acento={unidadesRestantes === 0 ? "success" : "primary"}
         />
       </div>
 

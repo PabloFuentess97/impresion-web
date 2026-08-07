@@ -101,7 +101,7 @@ export const proyectoService = {
     };
   },
 
-  /** Calcula métricas agregadas de un proyecto a partir de sus impresiones. */
+  /** Calcula métricas agregadas de un proyecto a partir de impresiones y salidas. */
   calcularMetricas(proyecto: {
     id: string;
     titulo: string;
@@ -117,6 +117,7 @@ export const proyectoService = {
     createdAt: Date;
     updatedAt: Date;
     impresiones: { cantidad: number; tiempo: number }[];
+    salidas: { cantidad: number }[];
   }): ProyectoConMetricas {
     const totalImpresiones = proyecto.impresiones.length;
     const cantidadTotal = proyecto.impresiones.reduce(
@@ -127,6 +128,16 @@ export const proyectoService = {
       (acc, i) => acc + i.tiempo,
       0,
     );
+    const totalSalidas = proyecto.salidas.length;
+    const cantidadSalidas = proyecto.salidas.reduce(
+      (acc, s) => acc + s.cantidad,
+      0,
+    );
+    const unidadesRestantes =
+      proyecto.cantidadProduccion == null
+        ? null
+        : Math.max(0, proyecto.cantidadProduccion - cantidadSalidas);
+
     return {
       id: proyecto.id,
       titulo: proyecto.titulo,
@@ -144,6 +155,9 @@ export const proyectoService = {
       totalImpresiones,
       cantidadTotal,
       tiempoTotal,
+      totalSalidas,
+      cantidadSalidas,
+      unidadesRestantes,
     };
   },
 
@@ -160,12 +174,26 @@ export const proyectoService = {
       (acc, i) => acc + i.tiempo,
       0,
     );
+    const totalSalidas = proyecto.salidas.length;
+    const cantidadSalidas = proyecto.salidas.reduce(
+      (acc, s) => acc + s.cantidad,
+      0,
+    );
+    const unidadesRestantes =
+      proyecto.cantidadProduccion == null
+        ? null
+        : Math.max(0, proyecto.cantidadProduccion - cantidadSalidas);
+    const { salidas, ...proyectoBase } = proyecto;
+    void salidas;
 
     return {
-      ...proyecto,
+      ...proyectoBase,
       totalImpresiones: proyecto.impresiones.length,
       cantidadTotal,
       tiempoTotal,
+      totalSalidas,
+      cantidadSalidas,
+      unidadesRestantes,
     };
   },
 
