@@ -133,10 +133,8 @@ export const proyectoService = {
       (acc, s) => acc + s.cantidad,
       0,
     );
-    const unidadesRestantes =
-      proyecto.cantidadProduccion == null
-        ? null
-        : Math.max(0, proyecto.cantidadProduccion - cantidadSalidas);
+    const cantidadBase = proyecto.cantidadProduccion ?? cantidadTotal;
+    const unidadesRestantes = Math.max(0, cantidadBase - cantidadSalidas);
 
     return {
       id: proyecto.id,
@@ -179,10 +177,8 @@ export const proyectoService = {
       (acc, s) => acc + s.cantidad,
       0,
     );
-    const unidadesRestantes =
-      proyecto.cantidadProduccion == null
-        ? null
-        : Math.max(0, proyecto.cantidadProduccion - cantidadSalidas);
+    const cantidadBase = proyecto.cantidadProduccion ?? cantidadTotal;
+    const unidadesRestantes = Math.max(0, cantidadBase - cantidadSalidas);
     const { salidas, ...proyectoBase } = proyecto;
     void salidas;
 

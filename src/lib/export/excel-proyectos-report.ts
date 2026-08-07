@@ -88,7 +88,7 @@ export async function exportarReporteProyectosExcel(
       tiempo: formatearTiempo(proyecto.tiempoTotal),
       cantidadSalidas: proyecto.cantidadSalidas,
       totalSalidas: proyecto.totalSalidas,
-      unidadesRestantes: proyecto.unidadesRestantes ?? "Sin objetivo",
+      unidadesRestantes: proyecto.unidadesRestantes ?? 0,
       createdAt: formatearFecha(proyecto.createdAt),
       fechaInicio: proyecto.fechaInicio ? formatearFecha(proyecto.fechaInicio) : "",
       fechaEntrega: proyecto.fechaEntrega

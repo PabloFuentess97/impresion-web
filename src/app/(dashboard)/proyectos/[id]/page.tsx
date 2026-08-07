@@ -273,9 +273,7 @@ export default async function ProyectoDetallePage({
                 {" · "}
                 Restantes:{" "}
                 <span className="font-medium text-foreground">
-                  {unidadesRestantes == null
-                    ? "Sin objetivo"
-                    : formatearNumero(unidadesRestantes)}
+                  {formatearNumero(unidadesRestantes ?? 0)}
                 </span>
               </p>
               <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-muted">
@@ -326,9 +324,7 @@ export default async function ProyectoDetallePage({
         <StatCard
           titulo="Unidades restantes"
           valor={
-            unidadesRestantes == null
-              ? "Sin objetivo"
-              : formatearNumero(unidadesRestantes)
+            formatearNumero(unidadesRestantes ?? 0)
           }
           icono={<Boxes />}
           acento={unidadesRestantes === 0 ? "success" : "primary"}

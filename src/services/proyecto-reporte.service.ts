@@ -90,10 +90,8 @@ export const proyectoReporteService = {
         (acc, salida) => acc + salida.cantidad,
         0,
       );
-      const unidadesRestantes =
-        proyecto.cantidadProduccion == null
-          ? null
-          : Math.max(0, proyecto.cantidadProduccion - cantidadSalidas);
+      const cantidadBase = proyecto.cantidadProduccion ?? cantidadImpresa;
+      const unidadesRestantes = Math.max(0, cantidadBase - cantidadSalidas);
 
       resumenes.push({
         id: proyecto.id,

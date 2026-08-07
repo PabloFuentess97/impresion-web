@@ -186,22 +186,16 @@ export default async function ReporteProyectosPage() {
                       {formatearNumero(proyecto.cantidadSalidas)}
                     </TableCell>
                     <TableCell className="text-center">
-                      {proyecto.unidadesRestantes == null ? (
-                        <span className="text-sm text-muted-foreground">
-                          Sin objetivo
-                        </span>
-                      ) : (
-                        <Badge
-                          variant="secondary"
-                          className={
-                            proyecto.unidadesRestantes === 0
-                              ? "border border-emerald-200 bg-emerald-100 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-400"
-                              : "border border-indigo-200 bg-indigo-100 text-indigo-700 dark:border-indigo-500/20 dark:bg-indigo-500/15 dark:text-indigo-400"
-                          }
-                        >
-                          {formatearNumero(proyecto.unidadesRestantes)}
-                        </Badge>
-                      )}
+                      <Badge
+                        variant="secondary"
+                        className={
+                          proyecto.unidadesRestantes === 0
+                            ? "border border-emerald-200 bg-emerald-100 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-400"
+                            : "border border-indigo-200 bg-indigo-100 text-indigo-700 dark:border-indigo-500/20 dark:bg-indigo-500/15 dark:text-indigo-400"
+                        }
+                      >
+                        {formatearNumero(proyecto.unidadesRestantes ?? 0)}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-center text-sm text-muted-foreground">
                       {formatearTiempo(proyecto.tiempoTotal)}
@@ -280,11 +274,7 @@ export default async function ReporteProyectosPage() {
                       />
                       <DatoReporte
                         label="Restantes"
-                        valor={
-                          proyecto.unidadesRestantes == null
-                            ? "Sin objetivo"
-                            : formatearNumero(proyecto.unidadesRestantes)
-                        }
+                        valor={formatearNumero(proyecto.unidadesRestantes ?? 0)}
                       />
                       <DatoReporte
                         label="Tiempo"

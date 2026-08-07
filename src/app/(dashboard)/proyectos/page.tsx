@@ -215,22 +215,16 @@ export default async function ProyectosPage({
                     {formatearNumero(p.cantidadSalidas)}
                   </TableCell>
                   <TableCell className="text-center">
-                    {p.unidadesRestantes == null ? (
-                      <span className="text-sm text-muted-foreground">
-                        Sin objetivo
-                      </span>
-                    ) : (
-                      <Badge
-                        variant="secondary"
-                        className={
-                          p.unidadesRestantes === 0
-                            ? "border border-emerald-200 bg-emerald-100 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-400"
-                            : "border border-indigo-200 bg-indigo-100 text-indigo-700 dark:border-indigo-500/20 dark:bg-indigo-500/15 dark:text-indigo-400"
-                        }
-                      >
-                        {formatearNumero(p.unidadesRestantes)}
-                      </Badge>
-                    )}
+                    <Badge
+                      variant="secondary"
+                      className={
+                        p.unidadesRestantes === 0
+                          ? "border border-emerald-200 bg-emerald-100 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-400"
+                          : "border border-indigo-200 bg-indigo-100 text-indigo-700 dark:border-indigo-500/20 dark:bg-indigo-500/15 dark:text-indigo-400"
+                      }
+                    >
+                      {formatearNumero(p.unidadesRestantes ?? 0)}
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-center">
                     <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">

@@ -173,7 +173,7 @@ export const CATEGORIAS: Categoria[] = [
           "El proyecto puede mostrar cuántas unidades quedan después de registrar salidas.",
         puntos: [
           "Si un proyecto tiene un objetivo de 1000 unidades y se registran salidas por 100, la app muestra 900 unidades restantes.",
-          "Las unidades restantes se calculan con el objetivo del proyecto menos las unidades que han salido.",
+          "Las unidades restantes se calculan con el objetivo del proyecto menos las unidades que han salido. Si no hay objetivo configurado, se usa la cantidad total impresa.",
           "Este dato aparece en el listado de proyectos, en el detalle y en el reporte global de proyectos.",
         ],
         etiquetas: ["restantes", "objetivo", "salidas", "unidades", "proyecto"],

@@ -87,9 +87,7 @@ export function exportarReporteProyectosPDF(
         : formatearNumero(proyecto.cantidadProduccion),
       formatearNumero(proyecto.cantidadImpresa),
       formatearNumero(proyecto.cantidadSalidas),
-      proyecto.unidadesRestantes == null
-        ? "Sin objetivo"
-        : formatearNumero(proyecto.unidadesRestantes),
+      formatearNumero(proyecto.unidadesRestantes ?? 0),
       formatearTiempo(proyecto.tiempoTotal),
     ]),
     headStyles: { fillColor: [79, 70, 229], textColor: 255, fontSize: 8 },
@@ -119,9 +117,7 @@ export function exportarReporteProyectosPDF(
       `Impreso: ${formatearNumero(proyecto.cantidadImpresa)}`,
       `Salidas: ${formatearNumero(proyecto.cantidadSalidas)}`,
       `Restantes: ${
-        proyecto.unidadesRestantes == null
-          ? "Sin objetivo"
-          : formatearNumero(proyecto.unidadesRestantes)
+        formatearNumero(proyecto.unidadesRestantes ?? 0)
       }`,
     ];
     doc.text(detalle.join("  ·  "), margen, cursorY);
